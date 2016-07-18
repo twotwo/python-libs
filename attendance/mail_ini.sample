@@ -1,0 +1,32 @@
+[basic]
+# 考勤系统的根路径
+base_dir=/tmp/考勤/2016年7月
+
+
+[check info]
+# 考勤起始日期
+start = 2016-6-27
+end = 2016-7-8
+# 节假日调休安排：需要上班的周末和放假的工作日，用逗号(,)分割
+working_days = 2016-4-30
+holidays = 2016-5-2, 2016-5-3
+# 原始考勤excel文件名称，此文件应该放到执行命令所在的目录下#raw.xlsx
+raw_excel = 06270710.xls
+# 考勤汇总表，此文件生成到${base_dir}目录下
+summary_sheet = summary.xls
+# 待通知内容目录，${base_dir}/outbox
+outbox = outbox
+＃ 已发送目录，${base_dir}/sent_box
+sent_box = sent_box
+
+[mail_account]
+#smtp config
+host=mail.server.com
+port=25
+# 超时时间设置为60s
+timeout=60
+user=
+password=
+
+debug_mode=False
+use_ssl=False

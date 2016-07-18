@@ -140,7 +140,8 @@ Sample return
 		is_early=False
 		time_in = datetime.datetime.strptime(start, '%H:%M:%S')
 		time_out = datetime.datetime.strptime(end, '%H:%M:%S')
-		if time_in > datetime.datetime.strptime('10:00:00', '%H:%M:%S'): is_late = True
+		# update: 10:00:59前不算迟到
+		if time_in > datetime.datetime.strptime('10:00:59', '%H:%M:%S'): is_late = True
 		if time_out < datetime.datetime.strptime('18:00:00', '%H:%M:%S'): is_early = True
 		if (time_out - time_in)< datetime.timedelta(hours=9): is_early = True
 		
@@ -174,7 +175,8 @@ Sample return
 				if not d[3]: status = 'over_time' #休息日工作
 			else: # 漏打卡 len(today_record) == 1
 				c_in = dailyrecords.get(date)[0]
-				status = 'missing' # 漏打卡
+				#update 工作日，一条记录才是漏打卡
+				if d[3]: status = 'missing' # 漏打卡
 
 			record = DtoRecord(date, d[2], c_in, c_out, workinghours, status, DateUtil.Attendance_Status.get(status))
 			records.append(record)
@@ -242,8 +244,6 @@ class AttendanceProcessor(object):
 		"""读取mail.xlsx中姓名、部门、邮箱信息
 		select department, name, email from fl_users;
 		"""
-		# 用来匹配未知地址
-		self.mail = self.config.get('check info','mail')
 		workbook = xlrd.open_workbook('mail.xlsx', encoding_override='gb2312')
 		print '__load_email_address - loading sheets: ' + ', '.join(workbook.sheet_names())
 		sheet = workbook.sheet_by_index(0)
@@ -255,6 +255,7 @@ class AttendanceProcessor(object):
 		for num_row in range(1,num_rows):
 			(department, name, mail) = (sheet.cell_value(num_row, 0), sheet.cell_value(num_row, 1), sheet.cell_value(num_row, 2))
 			mails[name+'_'+department] = mail
+			mails[name] = mail
 			# print (department, name, mail)
 		return mails
 
@@ -295,8 +296,11 @@ class AttendanceProcessor(object):
 					self.sheet.write(self.row_write, 7, record.desc)
 					# self.sheet.write(self.row_write, 8, record.status)
 
-					if record.status !='normal': m_records.append(record)
-					if debug: print name, self.row_write, record
+					if record.status !='normal':
+						#update 增加关心提醒
+						if record.status =='over_time': record.desc = u'休息日工作，要注意身体噢'
+						m_records.append(record)
+					if debug: print name, self.row_write+1, record
 
 			except:
 				print "Unexpected error:", sys.exc_info()[0]
@@ -311,6 +315,7 @@ class AttendanceProcessor(object):
 				mail = None
 				try:
 					mail = self.mails.get(name+'_'+department) # 根据姓名和部门获得邮箱地址
+					if mail == None: mail = self.mails.get(name) # 当前需求，只根据姓名获得邮箱地址
 				except UnicodeEncodeError as e:
 					logging.error('UnicodeEncodeError({0}): on writebyperson name={1}, department={2}'.format(e.message, name, self.department))
 				if mail == None or len(mail) == 0: mail = 'unknow'
@@ -412,12 +417,11 @@ class AttendanceProcessor(object):
 							print record.name, 'all record size = ', record.count
 							debug = True
 						if debug_name != None:
-							print record.name, ' write from row: ', self.row_write
+							print record.name, ' write from row: ', self.row_write+2
 						records = DateUtil.gen_person_records(self.datarange, record.dailyrecords, debug)
-						record.dailyrecords = {}
-
 						# 写文件
-						self.__summary_sheet_writebyperson(record.name, department, records, debug)
+						self.__summary_sheet_writebyperson(record.name, record.department, records, debug)
+						record.dailyrecords = {}
 
 						# 开始下一个人
 						record.put_3_values(department, name, timestamp)
@@ -436,10 +440,8 @@ class AttendanceProcessor(object):
 				(department, name, timestamp) = (sheet.cell_value(num_rows-1, 0), sheet.cell_value(num_rows-1, 1), sheet.cell_value(num_rows-1, 2))
 				if record.name == name: record.put_timestamp(timestamp)
 				records = DateUtil.gen_person_records(self.datarange, record.dailyrecords)
+				self.__summary_sheet_writebyperson(record.name, record.department, records, True)
 				record.dailyrecords = {}
-				if debug_name != None:
-					print record.name, ' write from row: ', self.row_write
-				self.__summary_sheet_writebyperson(record.name, department, records, True)
 			except Exception as e:
 				# print "Unexpected error:", sys.exc_info()[0]
 				print 'Exception({0}): on write row {1}'.format(e.message, self.row_write)
@@ -505,7 +507,15 @@ def test_gen_html(file_path):
 def gen_excel():
 	"""生成考勤汇总表(summary.xls)和考勤异常同事的异常记录表(outbox/*.xls)
 	"""
-	p = AttendanceProcessor("mail.ini")
+	
+	ini_file = 'mail.ini'
+	if not os.access(ini_file,os.R_OK): 
+		ini_file = 'mail_ini.sample'
+		print 'try to read mail_ini.sample...'
+	elif not os.access(ini_file,os.R_OK):
+		print 'mail.ini or mail_ini.sample not existed.'
+		return
+	p = AttendanceProcessor(ini_file)
 	p.generate_excels()
 
 def main():
