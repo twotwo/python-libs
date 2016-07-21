@@ -11,7 +11,7 @@ end = 2016-7-8
 working_days = 2016-4-30
 holidays = 2016-5-2, 2016-5-3
 # 原始考勤excel文件名称，此文件应该放到执行命令所在的目录下#raw.xlsx
-raw_excel = 06270710.xls
+raw_excel = raw.xls
 # 考勤汇总表，此文件生成到${base_dir}目录下
 summary_sheet = summary.xls
 # 待通知内容目录，${base_dir}/outbox

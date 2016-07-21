@@ -169,7 +169,7 @@ def send_mail():
 		os.mkdir(sent_path)
 		logging.info('create sent_box dir[%s]' % sent_path)
 	for mail_file in os.listdir(outbox_path):
-		# 张一荻_网秦_zhangyidi@feiliu.com_.html
+		# 张老大_Department001_zhanglaoda@company.com_.html
 		try:
 			(name, d , email, ft) = mail_file.split('_')
 			content = codecs.open(os.path.join(outbox_path, mail_file)).read()
@@ -209,12 +209,12 @@ def test_send():
 		exit(-1)
 	
 	# formataddr(realname, email_address)
-	ffrom = formataddr((str(Header(u'考勤系统通知', 'utf-8')), "liyan@feiliu.com"))
-	rcpt_tos = ['liyan@feiliu.com', 'liumingfei@feiliu.com']
-	reply_to = 'liyan@feiliu.com'
+	ffrom = formataddr((str(Header(u'考勤系统通知', 'utf-8')), "liyan@company.com"))
+	rcpt_tos = ['liyan@company.com', 'liumingfei@company.com']
+	reply_to = 'liyan@company.com'
 	subject = u'考勤异常提醒'
-	content = codecs.open(u'/opt/e_disk/doc/NetQin/2015-Feiliu/当前工作/AttendanceRegister/work/outbox/乐号_网秦_lehao@feiliu.com_.html', encoding='utf-8').read()
-	files = [u'/opt/e_disk/doc/NetQin/2015-Feiliu/当前工作/AttendanceRegister/work/outbox/乐号_网秦_lehao@feiliu.com_.html', ]
+	content = codecs.open(u'/tmp/outbox/张老大_Department001_zhanglaoda@company.com_.html', encoding='utf-8').read()
+	files = [u'//tmp/outbox/张老大_Department001_zhanglaoda@company.com_.html', ]
 	files = None
 	msg = MailTool.msg(ffrom, rcpt_tos, reply_to, subject, content, files)
 	if tool.send(msg):

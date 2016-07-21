@@ -210,7 +210,7 @@ class AttendanceProcessor(object):
 		if sys.platform == 'win32': #decode to unicode
 			self.base_dir = self.base_dir.decode('utf-8')
 		if not os.access(self.base_dir,os.F_OK): 
-			os.mkdir(self.base_dir)
+			os.makedirs(self.base_dir)
 			logging.info('create base_dir: %s'%self.base_dir)
 		print 'base_dir = ', self.base_dir, type(self.base_dir)
 		# 初始化日志服务
@@ -380,7 +380,14 @@ class AttendanceProcessor(object):
 
 	def generate_excels(self):
 			file_path = self.config.get('check info','raw_excel')
-			# file_path = '/opt/e_disk/doc/NetQin/2015-Feiliu/当前工作/AttendanceRegister/old/kaoqin/app/uploads/11.xls'
+
+			#add at 2016-07-21 如果存在${base_dir}/sent_box或${base_dir}/mail.log，不再重新生成相关记录
+			if os.access(self.base_dir+'/sent_box',os.F_OK) or os.access(self.base_dir+'/mail.log',os.F_OK): 
+				logging.warn(u'[Regenerate Error] 错误的执行逻辑，开始执行邮件发送后就不要再执行生成命令！')
+				print '[Regenerate Error] Can not generate excels after sending!'
+				return
+
+			# file_path = '/tmp/11.xls'
 			workbook = xlrd.open_workbook(file_path, encoding_override='gb2312')
 			print 'loading sheets: ' + ', '.join(workbook.sheet_names())
 			sheet = workbook.sheet_by_index(0)
@@ -454,8 +461,8 @@ class AttendanceProcessor(object):
 
 
 def test_xls_read():
-	file_path = '/opt/e_disk/doc/NetQin/2015-Feiliu/当前工作/AttendanceRegister/raw.xlsx'
-	# file_path = '/opt/e_disk/doc/NetQin/2015-Feiliu/当前工作/AttendanceRegister/old/kaoqin/app/uploads/11.xls'
+	file_path = '/tmp/raw.xlsx'
+	# file_path = '/tmp/11.xls'
 	workbook = xlrd.open_workbook(file_path, encoding_override='gb2312')
 	print 'loading sheets: ' + ', '.join(workbook.sheet_names())
 	sheet = workbook.sheet_by_index(0)
