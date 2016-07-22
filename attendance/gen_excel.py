@@ -3,12 +3,14 @@ import ConfigParser, logging
 
 import xlrd, xlwt
 
-import time, datetime, sys, os
+import datetime, sys, os
 
 from jinja2 import Template
 import codecs
 
 import send_mail
+
+import random #only for test
 """
 Load Attendance Register, create Absent Records
 
@@ -341,42 +343,6 @@ class AttendanceProcessor(object):
 		except: 
 			logging.error('failed to write mail for %s_%s: %s' % (name, department, mail))
 
-		# 写个人Excel文件
-		# if not os.path.isdir(file_path):
-		# 	print 'missing outbox.'
-		# 	raise Exception('outbox path not exist!')
-		# try:
-		# 	file_path = os.path.join(file_path, name +'_'+ department +'_'+ mail +'_.xls')
-		# 	print 'Write to: '+file_path
-		# except Exception as e:
-		# 	print 'Exception({0}): fail to generate abslute path {1}'.format(e.message, name +'_'+ department + mail +'_.xlsx')
-		# 	raise e
-
-		# book = xlwt.Workbook(encoding="utf-8")
-		# sheet = book.add_sheet('Sheet 1')
-		# num = 0
-		# sheet.write(num, 0, u'姓名') # row, column, value
-		# sheet.write(num, 1, u'部门')
-		# sheet.write(num, 2, u'日期')
-		# sheet.write(num, 3, u'周几')
-		# sheet.write(num, 4, u'上班时间')
-		# sheet.write(num, 5, u'下班时间')
-		# sheet.write(num, 6, u'说明')
-
-		# for record in records:
-		# 	num = num + 1
-		# 	sheet.write(num, 0, name, self.style_red)
-		# 	sheet.write(num, 1, department, self.style_red)
-		# 	sheet.write(num, 2, record.date, self.style_red)
-		# 	sheet.write(num, 3, record.week_num, self.style_red)
-		# 	sheet.write(num, 4, record.time_in, self.style_red)
-		# 	sheet.write(num, 5, record.time_out, self.style_red)
-		# 	sheet.write(num, 6, record.desc, self.style_red)
-
-		# book.save(file_path)
-		# print 'Save Excel: '+file_path
-		# book = None
-
 
 	def generate_excels(self):
 			file_path = self.config.get('check info','raw_excel')
@@ -505,10 +471,84 @@ def test_gen_html(file_path):
 	# DtoRecord(date, week_num, time_in, time_out, time_work, status, desc)
 	records = []
 	records.append(DtoRecord(u'2016-6-17',u'周五','9:50','18.40','8:50','',u'迟到'))
-	body = template.render(name=u'张三', department=u'游戏平台业务部', records=records)
+	body = template.render(name=u'张三', department=u'平台业务部', records=records)
 	# print body
 	codecs.open(file_path, 'w', encoding='utf-8').write(body)
 
+def xls_write_mail_address(departments, persons, file_path):
+	book = xlwt.Workbook(encoding="utf-8")
+	sheet = book.add_sheet('Sheet 1')
+	num = 0
+	# 编辑单元格
+	sheet.write(num, 0, u'部门') # row, column, value
+	sheet.write(num, 1, u'姓名')
+	sheet.write(num, 2, u'邮件地址')
+
+	for person in persons:
+		num = num +1
+		sheet.write(num, 0, departments[num/150%4]) # row, column, value
+		sheet.write(num, 1, person)
+		sheet.write(num, 2, str(num)+'@mail.com')
+	
+	book.save(file_path)
+
+def xls_write_raw_data(drange, departments, persons, file_path):
+	'''
+	生成模拟考勤文件
+'''
+	book = xlwt.Workbook(encoding="utf-8")
+	sheet = book.add_sheet('Sheet 1')
+	num = 0
+	# 编辑单元格
+	sheet.write(num, 0, u'部门') # row, column, value
+	sheet.write(num, 1, u'姓名')
+	sheet.write(num, 2, u'日期时间')
+
+	# 部门和姓名集合
+	d_and_ps = []
+	for person in persons:
+		num = num +1
+		d_and_ps.append( (person, departments[num/150%4]) )
+
+	num = 0
+	for (p, d) in d_and_ps:
+		for dd in drange: # ('2016-04-30', datetime.date(2016, 4, 30), u'Sat.', True)
+			num = num +1
+			sheet.write(num, 0, d) # row, column, value
+			sheet.write(num, 1, p)
+			#随机上班打卡时间： 8:00 ~ 10:59
+			sheet.write(num, 2, dd[1].strftime('%Y/%m/%d') + datetime.time(random.randint(8, 10), random.randint(0, 59), 0).strftime(' %H:%M:%S') )
+
+			if random.randint(1, 10) > 3: #随机漏打卡，30%
+				num = num +1
+				sheet.write(num, 0, d) # row, column, value
+				sheet.write(num, 1, p)
+				#随机下班打卡时间： 18:00 ~ 19:59
+				sheet.write(num, 2, dd[1].strftime('%Y/%m/%d') + datetime.time(random.randint(18, 19), random.randint(0, 59), 0).strftime(' %H:%M:%S') )
+
+		# if num > 100000: break
+
+	book.save(file_path)
+
+def generate_test_data():
+	departments = [u'青龙组', u'白虎组', u'朱雀组', u'玄武组',]
+	# 姓名生成
+	persons = []
+	name_first = u'赵 钱 孙 李 周 吴 郑 冯 陈 楮 卫 蒋 沈 韩 朱 秦 尤 许 何 吕 施 孔 曹 严 华 金 魏 陶 戚 谢 邹 喻 柏 水 窦 云 苏 潘 葛 奚 范 彭 鲁 韦 昌 马 苗 凤 花 俞 任 袁 柳 酆 鲍 史 费 廉 岑 薛 雷 贺 倪 滕 殷 罗 毕 郝 邬 安 乐 于 时 傅 皮 卞 齐 伍 余 元 卜 顾 孟 平 和 穆 萧 尹 姚 邵 湛 祁 毛 禹 狄 米 贝 明 计 伏 成 戴 谈 宋 茅 熊 纪 舒 屈 项 祝 董 杜 阮 蓝 闽 席 季 麻 贾 路 娄 危 江 童 颜 梅 盛 林 刁 锺 徐 丘 高 夏 蔡 田 樊 胡 凌 虞 万 支 柯 昝 管 卢 经 房 裘 缪 干 解 应 丁 宣 贲 邓 郁 单 杭 包 诸 左 石 崔 吉 钮 程 嵇 邢 滑 裴 陆 荣 荀 羊 於 惠 甄 麹 家 芮 羿 储 靳 汲 邴 糜 井 段 富 巫 乌 焦 巴 牧 隗 山 谷 车 侯 宓 全 郗 班 仰 秋 仲 伊 宁 仇 栾 暴 甘 斜 厉 祖 武 符 刘 景 詹 束 叶 幸 司 韶 郜 黎 蓟 印 宿 白 怀 蒲 邰 从 索 咸 籍 赖 卓 蔺 屠 池 乔 阴 郁 胥 能 苍 闻 莘 党 翟 谭 贡 劳 姬 申 扶 堵 冉 宰 郦 郤 璩 桑 桂 濮 牛 寿 边 扈 燕 冀 郏 浦 尚 温 别 庄 晏 柴 瞿 阎 慕 连 茹 习 宦 艾 鱼 向 古 易 慎 戈 廖 庾 暨 居 衡 步 都 耿 满 匡 国 文 寇 广 禄 阙 欧 殳 沃 利 蔚 越 夔 师 巩 厍 聂 晁 勾 敖 冷 訾 辛 阚 那 简 饶 曾 毋 沙 乜 养 鞠 须 巢 关 蒯 相 查 后 荆 游 竺 权 逑 盖 益 桓 万俟 司马 上官 欧 夏侯 诸葛 闻人 东 赫连 皇甫 尉迟 公 澹台 公冶 宗政 濮 淳于 单于 太叔 申 公孙 仲孙 轩辕 令 锺离 宇文 长孙 慕 鲜于 闾丘 司徒 司 丌官 司寇 仉 督 子 颛孙 端木 巫马 公 漆雕 乐正 壤驷 公 拓拔 夹谷 宰父 谷 晋 楚 阎 法 汝 鄢 涂 段干 百里 东郭 南 呼延 归 海 羊舌 微 岳 帅 缑 亢 况 后 有 梁丘 左丘 东门 西 商 牟 佘 佴 伯 赏 南 墨 哈 谯 笪 年 爱 阳 第五 言 福'
+	name_last = u'老大 老二 老三 老四 老五 老六'
+	for name in name_first.split():
+		for nick in name_last.split():
+			persons.append( name + nick )
+
+	if not os.access('mail.xlsx',os.R_OK): 
+		# 生成测试邮件列表文件
+		print 'generate test mail address.'
+		xls_write_mail_address(departments, persons, 'mail.xlsx')
+
+	if not os.access('raw.xls',os.R_OK): 
+		# 生成测试用打卡文件
+		print 'generate test raw data.'
+		xls_write_raw_data(DateUtil.create_daterange('2016-6-27','2016-7-8'), departments, persons, 'raw.xls')
 
 
 def gen_excel():
@@ -519,6 +559,7 @@ def gen_excel():
 	if not os.access(ini_file,os.R_OK): 
 		ini_file = 'mail_ini.sample'
 		print 'try to read mail_ini.sample...'
+		generate_test_data()
 	elif not os.access(ini_file,os.R_OK):
 		print 'mail.ini or mail_ini.sample not existed.'
 		return
