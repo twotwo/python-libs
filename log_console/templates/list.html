@@ -20,6 +20,7 @@
 
 <p></p>
 <p></p>
+<pre>{{ cmd }}</pre>
 
 <table>
 	<tr>
@@ -37,5 +38,12 @@
 
 	{% endfor %}
 </table>
+
+{% if err %}
+<pre>
+==Error Info ==
+{{ err }}
+</pre>
+{% endif %}
 
 </body>
