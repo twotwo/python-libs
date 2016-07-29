@@ -27,13 +27,18 @@ def render_template(template_name, **context):
 
 myform = web.form.Form( 
 	# web.form.Textbox("IMEI"),
-	web.form.Textbox("DevID"),
+	web.form.Textbox("DevID", description=u'设备ID(IMEI/IDFA)'),
+	web.form.Textbox("AppID", description=u'游戏唯一标识'),
 	web.form.Textbox("Lines", 
     web.form.notnull,
     web.form.regexp('\d+', 'Must be a digit'),
-    web.form.Validator('Not more than 100000', lambda x:int(x)<100001)),
-	web.form.Checkbox(u'short columns'), 
-	web.form.Dropdown('OS', ['all', 'iOS', 'Android']))
+    web.form.Validator('Not more than 100000', lambda x:int(x)<100001),
+    description=u'指定行数'),
+	web.form.Dropdown('Columns', ['All', 'C16', 'C12'], description=u'显示字段'),
+	# web.form.Checkbox('ShortColumns', description=u'精简字段', value='True'), 
+	web.form.Checkbox('Reversed', description=u'是否倒序', value=True), 
+	# web.form.Dropdown('OS', ['all', 'iOS', 'Android']),
+	)
 
 class Console:
 	def GET(self):
@@ -43,10 +48,11 @@ class Console:
 	def POST(self):
 		form = myform()
 		if form.validates():
-			print "IDFA = %s, OS = %s" % (form.d.DevID, form.d.OS)
+			# print form.d
+			# print web.input()
+			print "IDFA = %s, Reversed = '%s', Lines = %s" % (form.d.DevID, form.d.Reversed, form.d.Lines)
 			# return "IDFA = %s, OS = %s" % (form.d.DevID, form.d.OS)
-
-		result = CommandUtil.excute(devID=form.d.DevID, lines=form.d.Lines)
+		result = CommandUtil.excute(dev_id=form.d.DevID, columns=form.d.Columns, lines=form.d.Lines, reversed=form.d.Reversed)
 
 		return render_template('list.html',form=form, result=result)
 		

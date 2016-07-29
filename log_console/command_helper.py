@@ -19,7 +19,7 @@ class Result(object):
 class CommandUtil(object):
 
 	@staticmethod
-	def gen_command(devID, lines):
+	def gen_command(dev_id, lines):
 		'''生成要执行的查询命令
 		'''
 		log_file = date.today().strftime('/data/logs/fltranslog/%Y-%m-%d.log')
@@ -27,8 +27,8 @@ class CommandUtil(object):
 			log_file = '~/app/python/web/web.py/2016-07-27.log'
 
 		match = ''
-		if devID:
-			match = '|awk \'BEGIN{FS="\\\\\\\\x02"} {if($20=="%s") print $0}\'' % devID # print all match columns
+		if dev_id:
+			match = '|awk \'BEGIN{FS="\\\\\\\\x02"} {if($20=="%s") print $0}\'' % dev_id # print all match columns
 			if not lines: lines = '5000'
 		else:
 			lines = '100'
@@ -36,14 +36,18 @@ class CommandUtil(object):
 		return 'tail -n%s %s %s|awk -f trimcells.awk' % (lines, log_file, match)
 
 	@staticmethod
-	def excute(devID=None, lines='100'):
+	def excute(dev_id, columns, lines='100', reversed=False):
 		start_point = time.time()
-		cmd = CommandUtil.gen_command(devID, lines)
+		cmd = CommandUtil.gen_command(dev_id, lines)
 		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 		out, err = process.communicate()
 
 		titles = [u'EventID', u'Log Time', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'DevID', u'AccountID', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName',]
-		raws = [line.split(',') for line in codecs.decode(out, 'utf-8').split('\n')]
+		raws = [line.split(',') for line in codecs.decode(out.strip('\n'), 'utf-8').split('\n')]
+
+		if reversed:
+			raws.reverse()
+			print 'reversed@excute'
 
 		return Result(cmd, out, err, titles, raws, time.time()-start_point)
 
