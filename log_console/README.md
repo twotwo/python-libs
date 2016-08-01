@@ -21,7 +21,9 @@
 
  3. 可以翻转记录的排序方式
 
- 4. 支持显示不同的字段
+ 4. 支持显示不同的字段：全部，19个字段和12个字段
+
+ 5. 支持对EventId的筛选
 
 
 配置说明
@@ -32,6 +34,11 @@
  1. 
 
 ### nginx
+
+### 日常运维
+[root@localhost ~]# supervisorctl restart console
+console: stopped
+console: started
 
 
 
