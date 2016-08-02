@@ -301,6 +301,9 @@ class AttendanceProcessor(object):
 					if record.status !='normal':
 						#update 增加关心提醒
 						if record.status =='over_time': record.desc = u'休息日工作，要注意身体噢'
+						#去掉秒数
+						record.time_in = record.time_in[0:-3]
+						record.time_out = record.time_out[0:-3]
 						m_records.append(record)
 					if debug: print name, self.row_write+1, record
 
