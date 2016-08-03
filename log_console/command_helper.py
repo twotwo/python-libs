@@ -19,7 +19,7 @@ class Result(object):
 class CommandUtil(object):
 
 	@staticmethod
-	def gen_command(dev_id, lines):
+	def gen_command(dev_id, columns, lines):
 		'''生成要执行的查询命令
 		'''
 		log_file = date.today().strftime('/data/logs/fltranslog/%Y-%m-%d.log')
@@ -32,18 +32,23 @@ class CommandUtil(object):
 			if not lines: lines = '5000'
 		else:
 			lines = '100'
+		#-v Col="all"
+		vars='-v Col="%s"' % columns
 		
-		return 'tail -n%s %s %s|awk -f trimcells.awk' % (lines, log_file, match)
+		return 'tail -n%s %s %s|awk %s -f trimcells.awk' % (lines, log_file, match, vars)
 
 	@staticmethod
 	def excute(dev_id, columns, lines='100', reversed=False):
 		start_point = time.time()
-		cmd = CommandUtil.gen_command(dev_id, lines)
+		cmd = CommandUtil.gen_command(dev_id, columns, lines)
 		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 		out, err = process.communicate()
 
-		titles = [u'EventID', u'Log Time', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'DevID', u'AccountID', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName',]
-		raws = [line.split(',') for line in codecs.decode(out.strip('\n'), 'utf-8').split('\n')]
+		titles = [u'EventID', u'Log Time', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'DevID', u'AccountID', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName', u'EventValue',]
+		if columns=='all': titles = [u'EventID', u'Log Time', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'BrandName', u'Serial', u'DevID', u'IDFA', u'IDFA', 'Screen', u'Lang', u'GPS', u'Net', 'Machine', u'AccountID', u'AccountName', u'AccountType', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName', u'EventValue', u'DataSrouce', u'Reserved',]
+		raws = [line.split('\\x02') for line in codecs.decode(out.strip('\n'), 'utf-8').split('\n')]
+		if columns=='c12': titles = [u'EventID' ,u'logtime', u'AppID', u'UID', u'ChannelID', u'DevID', u'AccountID', u'RoleID', u'RoleName', u'EventValue']
+		raws = [line.split('\\x02') for line in codecs.decode(out.strip('\n'), 'utf-8').split('\n')]
 
 		if reversed:
 			raws.reverse()

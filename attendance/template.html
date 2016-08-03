@@ -2,18 +2,18 @@
 <head>
 	<meta charset="utf-8">
 	<style type="text/css">
-		body { font: normal 12px auto "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif; color: #4f6b72; background: #d8e9e8; } 
-		a { color: #c75f3e; } 
-		#mytable {  padding: 0; margin: 0; } 
-		caption { padding: 0 0 5px 0; width: 700px;      font: italic 12px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif; text-align: right; } 
-		th { font: bold 14px, Verdana, Arial, Helvetica, sans-serif; color: #0065A4; border-right: 1px solid #C1DAD7; border-bottom: 1px solid #C1DAD7; border-top: 1px solid #C1DAD7; letter-spacing: 2px; text-align: left; padding: 6px 6px 6px 12px; background: #CAE8EA url(images/bg_header.jpg) no-repeat; } 
-		th.nobg { border-top: 0; border-left: 0; border-right: 1px solid #C1DAD7; background: none; } 
-		td { border-right: 1px solid #C1DAD7; border-bottom: 1px solid #C1DAD7; background: #fff; font-size:18px; padding: 6px 6px 6px 12px; color: #4f6b72; } 
-		td.alt { background: #F5FAFA; color: #797268; } 
-		th.spec { border-left: 1px solid #C1DAD7; border-top: 0; background: #fff url(images/bullet1.gif) no-repeat; font: bold 12px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif; } 
-		th.specalt { border-left: 1px solid #C1DAD7; border-top: 0; background: #f5fafa url(images/bullet2.gif) no-repeat; font: bold 12px, Verdana, Arial, Helvetica, sans-serif; color: #797268; } 
-		td{ font-size:16px;} 
-		.yellow {background-color: #ffff00}
+		body { font: normal 12px auto "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif; color: #4f6b72; background: #d8e9e8; }
+			caption { padding: 0 0 5px 0;font: italic 12px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif; text-align: right; }
+			th { font: bold 16px, Verdana, Arial, Helvetica, sans-serif; color: #0065A4; border-right: 1px solid #C1DAD7; border-bottom: 1px solid #C1DAD7; border-top: 1px solid #C1DAD7; letter-spacing: 2px; text-align: left; padding: 6px 6px 6px 12px; background: #CAE8EA;}
+			td { border-right: 1px solid #C1DAD7; border-bottom: 1px solid #C1DAD7; background: #fff; font-size:11px; padding: 6px 6px 6px 16px; color: #4f6b72; }
+			table td, table th{
+				word-wrap: break-word;
+				word-break: normal;
+				word-break:break-all;
+			}
+			.yellow {background-color: #ffff37}
+			.blue {background-color: #46a3ff}
+			.green {background-color: #00bb00}
 	</style>
 </head>
 <body>
@@ -24,7 +24,7 @@
 <p></p>
 <p></p>
 <h3>温馨提示</h3>
-<p>一、每周标准工作时间为：星期一至星期五，每天的工作时间为上午9：00—12：00，下午13：00—18：00。 员工在保证完成其工作任务自行安排上班与下班的时间。例如：可按照自身情况安排为早10点上班至晚7点下班；弹性时间可提前或延后，但弹性时间不应超过1 小时。</p>
+<p>一、每周标准工作时间为：星期一至星期五，每天的工作时间为上午9：00—12：00，下午13：00—18：00。 员工在保证完成其工作任务的前提下自行安排上班与下班的时间。例如：可按照自身情况安排为早10点上班至晚7点下班；弹性时间可提前或延后，但弹性时间不应超过1 小时。</p>
 <p>二、员工每月漏刷卡的次数不得超过三次，否则全部漏刷卡均按迟到或早退三十分钟处理。 超过30钟后上班或提前30分钟以上下班者以旷工半日论。</p>
 <p>三、员工每月迟到、早退合计六次按旷工一日计算。 </p>
 <p>四、员工请假应提前申请，并由有审批权限的主管领导批准后，方可请假。如因特殊原因未能在事前请假者，员工本人应电话申请，由有审批权限的领导批准后方可休假，并在3日内补办假条手续，否则视为旷工。</p>
@@ -47,13 +47,13 @@
 
 		{% if record.status=='over_time' %}
 			<tr>
-				<td class="blue">{{ name }}</td>
-				<td class="blue">{{ department }}</td>
-				<td class="blue">{{ record.date }}</td>
-				<td class="blue">{{ record.week_num }}</td>
-				<td class="blue">{{ record.time_in }}</td>
-				<td class="blue">{{ record.time_out }}</td>
-				<td class="blue">{{ record.desc }}</td>
+				<td class="green">{{ name }}</td>
+				<td class="green">{{ department }}</td>
+				<td class="green">{{ record.date }}</td>
+				<td class="green">{{ record.week_num }}</td>
+				<td class="green">{{ record.time_in }}</td>
+				<td class="green">{{ record.time_out }}</td>
+				<td class="green">{{ record.desc }}</td>
 			</tr>
 		{% else %}
 			<tr>
