@@ -28,7 +28,7 @@ def render_template(template_name, **context):
 myform = web.form.Form( 
 	# web.form.Textbox("IMEI"),
 	web.form.Textbox("DevID", description=u'设备ID(IMEI/IDFA)'),
-	web.form.Textbox("AppID", description=u'游戏唯一标识'),
+	web.form.Textbox("AppID", description=u'游戏唯一标识(AppID)'),
 	web.form.Textbox("Lines", 
 		web.form.notnull,
 		web.form.regexp('\d+', 'Must be a digit'),
@@ -39,10 +39,11 @@ myform = web.form.Form(
 	web.form.Textbox("ShowLines", 
 		web.form.notnull,
 		web.form.regexp('\d+', 'Must be a digit'),
+		web.form.Validator('Not more than 200', lambda x:int(x)<201),
 		description=u'显示的条数', 
 		value="100", 
 	),
-	web.form.Dropdown('Columns', ['all', 'c19', 'c12'], description=u'显示字段', value="c19", ),
+	web.form.Dropdown('Columns', ['all', 'c17', 'c10'], description=u'显示字段', value="c17", ),
 	web.form.Dropdown('EventId', ['all', 'fl_init', 'fl_login', 'fl_logout', 'fl_payRequest', 'fl_paySucc'], description=u'筛选指定的EventId', value="All", multiple=True),
 	# web.form.Checkbox('ShortColumns', description=u'精简字段', value='True'), 
 	web.form.Checkbox('Reversed', description=u'是否倒序', value=True, checked=True), 
@@ -57,14 +58,9 @@ class Console:
 	def POST(self):
 		form = myform()
 		if form.validates():
-			# print form.d
-			# print web.input()
-			print "IDFA = %s, Reversed = '%s', Lines = %s" % (form.d.DevID, form.d.Reversed, form.d.Lines)
-			# return "IDFA = %s, OS = %s" % (form.d.DevID, form.d.OS)
-		result = CommandUtil.excute(dev_id=form.d.DevID, columns=form.d.Columns, lines=form.d.Lines, reversed=form.d.Reversed)
-
-		return render_template('list.html',form=form, result=result)
-		
+			result = CommandUtil.excute(dev_id=form.d.DevID, app_id=form.d.AppID, columns=form.d.Columns, lines=form.d.Lines, show_lines=form.d.ShowLines, reversed=form.d.Reversed)
+			return render_template('list.html',form=form, result=result)
+		return render_template('index.html', form=form)
 		# return render_template('list.html', headers=result.titles, records=raws, cmd=cmd, form=form)
 
 if __name__ == "__main__":

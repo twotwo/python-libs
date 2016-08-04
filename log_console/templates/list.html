@@ -1,12 +1,20 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 	<head>
 		<meta charset="utf-8">
-		<link rel="stylesheet" href="/static/reset.css" type="text/css">
+		<link rel="stylesheet" href="/static/css/reset.css">
+		<link rel="stylesheet" href="/static/css/defaultTheme.css" media="screen" />
+		<link rel="stylesheet" href="/static/css/myTheme.css" media="screen" />
+		<script src="/static/js/jquery.min.js"></script>
+		<script src="/static/js/jquery.fixedheadertable.min.js"></script>
+		<script type="text/javascript">
+		$(document).ready(function() {
+		$('#myTable01').fixedHeaderTable({ footer: true, cloneHeadToFoot: true, altClass: 'odd', autoShow: true,fixedColumns: 1 });
+		$('#myTable01').fixedHeaderTable('show', 1000);
+		});
+		</script>
 		<style type="text/css">
 		body { font: normal 12px auto "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif; color: #4f6b72; background: #d8e9e8; }
-			caption { padding: 0 0 5px 0;font: italic 12px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif; text-align: right; }
-			th { font: bold 12px, Verdana, Arial, Helvetica, sans-serif; color: #ffff00; border-right: 1px solid #C1DAD7; border-bottom: 1px solid #C1DAD7; border-top: 1px solid #C1DAD7; letter-spacing: 2px; text-align: left; padding: 6px 6px 6px 12px; background: #CAE8EA url(/static/images/bg_header.jpg) no-repeat; }
-			td { border-right: 1px solid #C1DAD7; border-bottom: 1px solid #C1DAD7; background: #fff; font-size:11px; padding: 6px 6px 6px 12px; color: #4f6b72; }
 			table td, table th{
 				word-wrap: break-word;
 				word-break: normal;
@@ -16,31 +24,40 @@
 		</style>
 	</head>
 	<body>
-		<form name="main" method="post">
-			{{ form.render() }}
-			<input type="submit" />
-		</form>
-		<p></p>
-		<p></p>
-	<caption><b class=".yellow"> [{{ result.cost_time }}s] </b> {{ result.cmd }}</caption>
-	<table>
-		<tr>
-			{% for header in result.titles %}
-				<th>{{header}}</th>
-			{% endfor %}
-		</tr>
-		{% for record in result.raws %}
-			<tr>
-				{% for cell in record %}
-					<td class="blue">{{ cell }}</td>
-				{% endfor %}
-			</tr>
-		{% endfor %}
-	</table>
-	{% if result.err %}
-		<pre>
-			==Error Info ==
-			{{ result.err }}
-		</pre>
-	{% endif %}
-</body>
+		<div class="container_12">
+			<div class="grid_4">
+				<form name="main" method="post">
+					{{ form.render() }}
+					<input type="submit" />
+				</form>
+				<p class=".yellow"><b>[{{ result.cost_time }}s] </b></p>
+				<p><code>{{ result.cmd }}</code></p>
+			</div>
+			<div class="grid_8 height400">
+				<table class="fancyTable" id="myTable01" cellpadding="0" cellspacing="0">
+					<thead><tr>
+						{% for header in result.titles %}
+							<th>{{header}}</th>
+						{% endfor %}
+					</tr></thead>
+					<tbody>
+						{% for record in result.raws %}
+							<tr>
+								{% for cell in record %}
+									<td class="blue">{{ cell }}</td>
+								{% endfor %}
+							</tr>
+						{% endfor %}
+						<tbody>
+						</table>
+						{% if result.err %}
+							<pre>
+								==Error Info ==
+								{{ result.err }}
+							</pre>
+						{% endif %}
+					</div>
+					<div class="clear"></div>
+				</div>
+			</body>
+		</html>

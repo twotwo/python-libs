@@ -2,9 +2,9 @@ BEGIN{FS="\\\\x02";OFS="\\x02"}
 {
 if(Col=="all") print $46, $1, $3, $4, $5, $8, $9, $10, $7, $14, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30,  $31, $32, $33, $34, $47, $37 $38 $39 $40, $41 $42 $43 $44 $45
 else
-	if(Col=="c19") print $46, $1, $3, $4, $5, $8, $9, $10, $7, $14, $20, $28, $31, $32, $33, $34, $47
+	if(Col=="c17") print $46, $1, $3, $4, $5, $8, $9, $10, $7, $14, $20, $28, $31, $32, $33, $34, $47
 	else
-		if(Col=="c12") print $46, $1, $3, $4, $8, $20, $28, $33, $34, $47
+		if(Col=="c10") print $46, $1, $3, $4, $8, $20, $28, $33, $34, $47
 		# default c19
 		else print $46, $1, $3, $4, $5, $8, $9, $10, $7, $14, $20, $28, $31, $32, $33, $34, $47
 }
@@ -16,14 +16,14 @@ else
 # u'AccountID'28, u'AccountName'29, u'AccountType'30, u'ServerID'31, u'RoleLevel'32, u'RoleID'33, u'RoleName'34,
 # u'IMEI'15, u'IDFA'21, u'EventValue'47,  DataSource37~40, Reserved41~45, 
 
-############### colunms 19
+############### colunms 17
 # u'EventID'46 ,u'logtime'1, u'AppID'3, u'UID'4, u'SDK Ver'5, u'ChannelID'8, u'Game Ver'9, u'OS'10, 
 # u'IPAddr'7, u'MacAddr'14, u'DevID'20, u'AccountID'28, u'ServerID'31, u'RoleLevel'32, u'RoleID'33, u'RoleName'34,
 # u'IMEI'15, u'IDFA'21, u'EventValue'47
 # 47 event value
 #{"type":"CNY","vcAmount":"6","cAmount":"6","payChannel":"","iapId":"204","orderId":"115d8f15-1207-49cf-9368-cd65027edbf8","vcType":"元宝"}
 
-############### colunms 12
+############### colunms 10
 # u'EventID'46 ,u'logtime'1, u'AppID'3, u'UID'4, u'ChannelID'8, u'DevID'20, u'AccountID'28, u'RoleID'33, u'RoleName'34,
 # u'EventValue'47
 

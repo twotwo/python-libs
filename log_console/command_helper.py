@@ -19,7 +19,7 @@ class Result(object):
 class CommandUtil(object):
 
 	@staticmethod
-	def gen_command(dev_id, columns, lines):
+	def gen_command(dev_id, app_id, columns, lines):
 		'''生成要执行的查询命令
 		'''
 		log_file = date.today().strftime('/data/logs/fltranslog/%Y-%m-%d.log')
@@ -27,8 +27,11 @@ class CommandUtil(object):
 			log_file = '~/app/python/web/web.py/2016-07-27.log'
 
 		match = ''
-		if dev_id:
-			match = '|awk \'BEGIN{FS="\\\\\\\\x02"} {if($20=="%s") print $0}\'' % dev_id # print all match columns
+		if dev_id or app_id:
+			'$3=="%s"' % app_id
+			if dev_id and app_id: match = '|awk \'BEGIN{FS="\\\\\\\\x02"} {if($3=="%s" && $20=="%s") print $0}\'' % (app_id, dev_id)
+			elif app_id: match = '|awk \'BEGIN{FS="\\\\\\\\x02"} {if($3=="%s") print $0}\'' % app_id # print all match columns
+			elif dev_id: match = '|awk \'BEGIN{FS="\\\\\\\\x02"} {if($20=="%s") print $0}\'' % dev_id
 			if not lines: lines = '5000'
 		else:
 			lines = '100'
@@ -38,21 +41,24 @@ class CommandUtil(object):
 		return 'tail -n%s %s %s|awk %s -f trimcells.awk' % (lines, log_file, match, vars)
 
 	@staticmethod
-	def excute(dev_id, columns, lines='100', reversed=False):
+	def excute(dev_id, app_id, columns, lines='100', show_lines='100', reversed=False):
 		start_point = time.time()
-		cmd = CommandUtil.gen_command(dev_id, columns, lines)
+		cmd = CommandUtil.gen_command(dev_id, app_id, columns, lines)
+		print cmd
 		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 		out, err = process.communicate()
 
 		titles = [u'EventID', u'Log Time', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'DevID', u'AccountID', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName', u'EventValue',]
 		if columns=='all': titles = [u'EventID', u'Log Time', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'BrandName', u'Serial', u'DevID', u'IDFA', u'IDFA', 'Screen', u'Lang', u'GPS', u'Net', 'Machine', u'AccountID', u'AccountName', u'AccountType', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName', u'EventValue', u'DataSrouce', u'Reserved',]
 		raws = [line.split('\\x02') for line in codecs.decode(out.strip('\n'), 'utf-8').split('\n')]
-		if columns=='c12': titles = [u'EventID' ,u'logtime', u'AppID', u'UID', u'ChannelID', u'DevID', u'AccountID', u'RoleID', u'RoleName', u'EventValue']
+		if columns=='c10': titles = [u'EventID' ,u'logtime', u'AppID', u'UID', u'ChannelID', u'DevID', u'AccountID', u'RoleID', u'RoleName', u'EventValue']
 		raws = [line.split('\\x02') for line in codecs.decode(out.strip('\n'), 'utf-8').split('\n')]
 
 		if reversed:
 			raws.reverse()
 			print 'reversed@excute'
+
+		if len(raws) > int(show_lines): raws = raws[0:int(show_lines)]
 
 		return Result(cmd, out, err, titles, raws, time.time()-start_point)
 
