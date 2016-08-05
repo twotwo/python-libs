@@ -36,6 +36,7 @@
 ### nginx
 
 ### 日常运维
+cd tools-python/log_console/; git pull
 [root@localhost ~]# supervisorctl restart console
 console: stopped
 console: started

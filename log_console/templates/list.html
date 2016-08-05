@@ -14,26 +14,41 @@
 		});
 		</script>
 		<style type="text/css">
-		body { font: normal 12px auto "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif; color: #4f6b72; background: #d8e9e8; }
+			.container{
+			margin-left: auto;
+			margin-right: auto;
+			width: 100%;
+			}
+			.grid{
+			/*display: inline;float: left;*/
+			margin-left: 10px;
+			margin-right: 10px;
+			}
+			body { font: normal 12px auto "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif; color: #4f6b72; background: #d8e9e8; }
 			table td, table th{
 				word-wrap: break-word;
 				word-break: normal;
 				word-break:break-all;
+				border-right: 1px solid #C1DAD7; border-bottom: 1px solid #C1DAD7;
+				padding: 1px 1px 1px 2px; color: #4f6b72;
 			}
 			.yellow {background-color: #ffff00}
 		</style>
 	</head>
 	<body>
-		<div class="container_12">
-			<div class="grid_4">
+		<div class="container divider">
+			<div class="grid">
 				<form name="main" method="post">
 					{{ form.render() }}
 					<input type="submit" />
 				</form>
-				<p class=".yellow"><b>[{{ result.cost_time }}s] </b></p>
-				<p><code>{{ result.cmd }}</code></p>
+				<p></p>
+				<p></p>
+				{% if result != None %}
+					<p><b class="yellow">[{{ result.cost_time }}s]</b><code>{{ result.cmd }}</code></p>
+				{% endif %}
 			</div>
-			<div class="grid_8 height400">
+			<div class="height400">
 				<table class="fancyTable" id="myTable01" cellpadding="0" cellspacing="0">
 					<thead><tr>
 						{% for header in result.titles %}
@@ -48,16 +63,16 @@
 								{% endfor %}
 							</tr>
 						{% endfor %}
-						<tbody>
-						</table>
-						{% if result.err %}
-							<pre>
-								==Error Info ==
-								{{ result.err }}
-							</pre>
-						{% endif %}
-					</div>
-					<div class="clear"></div>
-				</div>
-			</body>
-		</html>
+					</tbody>
+				</table>
+				{% if result.err %}
+					<pre>
+						==Error Info ==
+						{{ result.err }}
+					</pre>
+				{% endif %}
+			</div>
+			<div class="clear"></div>
+		</div>
+	</body>
+</html>

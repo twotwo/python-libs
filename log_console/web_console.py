@@ -43,24 +43,27 @@ myform = web.form.Form(
 		description=u'显示的条数', 
 		value="100", 
 	),
-	web.form.Dropdown('Columns', ['all', 'c17', 'c10'], description=u'显示字段', value="c17", ),
-	web.form.Dropdown('EventId', ['all', 'fl_init', 'fl_login', 'fl_logout', 'fl_payRequest', 'fl_paySucc'], description=u'筛选指定的EventId', value="All", multiple=True),
+	web.form.Dropdown('Columns', ['all', 'c17', 'c10'], description=u'显示字段', value="c17", link="http://172.16.100.90/confluence/pages/viewpage.action?pageId=12517799"),
+	# 'fl_login', 'fl_logout', 'fl_payRequest', 'fl_paySucc'
+	web.form.Dropdown('EventFilter', ['all', 'account', 'payment'], description=u'筛选特定事件', value="All",),
 	# web.form.Checkbox('ShortColumns', description=u'精简字段', value='True'), 
 	web.form.Checkbox('Reversed', description=u'是否倒序', value=True, checked=True), 
 	# web.form.Dropdown('OS', ['all', 'iOS', 'Android']),
+	class_="fancyTable", #css settings
 	)
 
 class Console:
 	def GET(self):
 		form = myform()
-		return render_template('index.html', form=form)
+		return render_template('list.html', form=form, result = None)
 
 	def POST(self):
 		form = myform()
+		result = None
 		if form.validates():
-			result = CommandUtil.excute(dev_id=form.d.DevID, app_id=form.d.AppID, columns=form.d.Columns, lines=form.d.Lines, show_lines=form.d.ShowLines, reversed=form.d.Reversed)
-			return render_template('list.html',form=form, result=result)
-		return render_template('index.html', form=form)
+			result = CommandUtil.excute(dev_id=form.d.DevID, app_id=form.d.AppID, event_filter=form.d.EventFilter, columns=form.d.Columns, lines=form.d.Lines, show_lines=form.d.ShowLines, reversed=form.d.Reversed)
+			
+		return render_template('list.html',form=form, result=result)
 		# return render_template('list.html', headers=result.titles, records=raws, cmd=cmd, form=form)
 
 if __name__ == "__main__":
