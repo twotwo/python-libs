@@ -12,7 +12,7 @@ else
 ############### colunms all
 # u'EventID'46 ,u'ReceiveTime'1, u'logtime'6, u'AppID'3, u'UID'4, u'SDK Ver'5, u'ChannelID'8, u'Game Ver'9, u'OS'10, 
 # u'IPAddr'7, u'MacAddr'14, u'BrandName'18, u'Serial'19, u'DevID'20, 
-# u'IDFA', u'IDFA', 'Screen', u'Lang', u'GPS', u'Net', 'Machine', 21~27
+# u'IDFA', u'IDFV', 'Screen', u'Lang', u'GPS', u'Net', 'Machine', 21~27
 # u'AccountID'28, u'AccountName'29, u'AccountType'30, u'ServerID'31, u'RoleLevel'32, u'RoleID'33, u'RoleName'34,
 # u'IMEI'15, u'IDFA'21, u'EventValue'47,  DataSource37~40, Reserved41~45, 
 

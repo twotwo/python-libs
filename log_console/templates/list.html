@@ -33,6 +33,7 @@
 				padding: 1px 1px 1px 2px; color: #4f6b72;
 			}
 			.yellow {background-color: #ffff00}
+			.red {background-color: #DC143C}
 		</style>
 	</head>
 	<body>
@@ -65,14 +66,8 @@
 						{% endfor %}
 					</tbody>
 				</table>
-				{% if result.err %}
-					<pre>
-						==Error Info ==
-						{{ result.err }}
-					</pre>
-				{% endif %}
 			</div>
-			<div class="clear"></div>
+			<div class="clear"><div class="clear"><pre class="red">{{ result.err }}</pre></div></div>
 		</div>
 	</body>
 </html>
