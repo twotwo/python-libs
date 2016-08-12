@@ -65,7 +65,7 @@ class CommandUtil(object):
 
 		# c17
 		titles = [u'EventID',u'ReceiveTime', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'DevID', u'AccountID', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName', u'EventValue',]
-		if columns=='all': titles = [u'EventID', u'ReceiveTime', u'Log Time', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'BrandName', u'Serial', u'DevID', u'IDFA', u'IDFV', 'Screen', u'Lang', u'GPS', u'Net', 'Machine', u'AccountID', u'AccountName', u'AccountType', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName', u'EventValue', u'DataSrouce', u'Reserved',]
+		if columns=='all': titles = [u'EventID', u'ReceiveTime', u'Log Time', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'设备型号', u'BrandName', u'Serial', u'DevID', u'IDFA', u'IDFV', 'Screen', u'Lang', u'GPS', u'Net', 'Machine', u'AccountID', u'AccountName', u'AccountType', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName', u'EventValue', u'DataSrouce', u'Reserved',]
 		raws = [line.split('\\x02') for line in codecs.decode(out.strip('\n'), 'utf-8').split('\n')]
 		if columns=='c10': titles = [u'EventID' ,u'ReceiveTime', u'AppID', u'UID', u'ChannelID', u'DevID', u'AccountID', u'RoleID', u'RoleName', u'EventValue']
 		raws = [line.split('\\x02') for line in codecs.decode(out.strip('\n'), 'utf-8').split('\n')]
