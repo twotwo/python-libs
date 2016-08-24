@@ -2,12 +2,24 @@
 ==============
 
 
-依赖库
+依赖
 -------
+ * git: http://wiki.li3huo.com/Git
  * python v2.7.x: https://www.python.org/downloads/release/python-2711/
+ * supervisor: http://wiki.li3huo.com/supervisor pip install --upgrade pip; pip install --upgrade --force-reinstall setuptools supervisor pip Distribute
  * web.py: http://wiki.li3huo.com/webpy
  * Jinja2: http://wiki.li3huo.com/Python_Template_Engine#Jinja2
 
+安装
+-------
+
+ 	mkdir -p /srv/src /srv/www; cd /srv/src; git clone https://github.com/twotwo/tools-python.git
+ 	ln -s /srv/src/tools-python/log_console/ /srv/www/console
+ 	cd /srv/www/console; pip install virtualenv --upgrade
+ 	virtualenv env; source env/bin/active
+ 	pip install web.py jinja2
+ 	mkdir /etc/supervisord; ln -s /srv/www/console/supervisor.conf /etc
+ 	ln -s /srv/www/console/supervisor_console.ini /etc/supervisord/console.ini
 
 功能描述
 --------
