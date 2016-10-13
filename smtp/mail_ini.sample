@@ -1,0 +1,26 @@
+# Home Path for Mail Tool(include working log)
+[basic]
+base_dir=/tmp/smtp
+
+# smtp config
+[smtp]
+host=mail.server.com
+port=25
+# 超时时间设置为60s
+timeout=60
+user=
+password=
+
+debug_mode=False
+use_ssl=False
+
+
+[test]
+from = sender@server.com
+to = liyan@server.com
+cc = liyan@server.com
+reply_to = liyan@server.com
+subject = [OnLine Daily Report]
+content = " "
+files = /Users/liyan/app/python/matplotlib/chart.png
+
