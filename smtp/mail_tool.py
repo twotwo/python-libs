@@ -1,13 +1,27 @@
 # -*- coding:utf-8 -*-                                                          
 """
+mail_tool.py
+使用SMTP协议发送邮件的工具
+
+参考
 https://hg.python.org/cpython/file/2.7/Lib/smtplib.py
-http://sendcloud.sohu.com/doc/email/code/#python
+https://docs.python.org/2/library/email-examples.html
+
+Copyright (c) 2016年 li3huo.com All rights reserved.
 """
 from smtplib import SMTP, SMTPConnectError, SMTPAuthenticationError
-from email.mime.multipart import MIMEMultipart
-from email.header import Header
+
+import mimetypes
+from email import encoders
+from email.message import Message
+from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+from email.header import Header
+
 from email.utils import COMMASPACE, formatdate, formataddr
 from email import encoders
 
@@ -73,33 +87,77 @@ class MailTool(object):
 		"""生成待发送内容
 		"""
 
-		msg = MIMEMultipart('alternative')
-		msg['subject'] = subject
-		msg['from'] = ffrom
-		msg['reply-to'] = reply_to
-		msg['to'] = ','.join(rcpt_tos).strip()
+		# Create the enclosing (outer) message
+		outer = MIMEMultipart()
+		outer['subject'] = subject
+		outer['from'] = ffrom
+		outer['reply-to'] = reply_to
+		outer['to'] = ','.join(rcpt_tos).strip()
 
 		if len(content.strip()) > 0:
-			part = MIMEText(content, 'html', 'utf8')
-			# print 'content:', content
-			msg.attach(part)
+			cnt = MIMEText(content, 'html', 'utf8')
+			print 'content:', content
+			outer.attach(cnt)
 
 		if files != None:
 			for f in files:
-				part = MIMEBase('application', 'octet-stream') #'octet-stream': binary data 
-				part.set_payload(open(f.strip(), 'rb').read())
-				encoders.encode_base64(part)
+				# Guess the content type based on the file's extension.  Encoding
+				# will be ignored, although we should check for simple things like
+				# gzip'd or compressed files.
+				ctype, encoding = mimetypes.guess_type(f)
 
-				# 如果附件名称含有中文, 则 filename 要转换为gb2312编码, 否则就会出现乱码
-				# unicode转换方法:  basename.encode('gb2312')  
-				# utf-8转换方法:    basename.decode('utf-8').encode('gb2312')  
-				filename = os.path.basename(f)
-				print filename
-				part.add_header('Content-Disposition', 'attachment; filename="%s"' % filename.encode('gb2312'))
-				msg.attach(part)
+				if ctype is None or encoding is not None:
+				# No guess could be made, or the file is encoded (compressed), so
+				# use a generic bag-of-bits type.
+					ctype = 'application/octet-stream'
+				maintype, subtype = ctype.split('/', 1)
+				logging.info('mail add attached: [{0}/{1}]{2}'.format(maintype, subtype,os.path.basename(f).encode('gb2312') ))
 
-		logging.info('mail({0}) from[{1}] to[{2}] created.'.format(msg['subject'], msg['from'] , msg['to']))
-		return msg
+				if maintype == 'text':
+					# Note: we should handle calculating the charset
+					msg = MIMEText(open(f.strip(), 'rb').read(), _subtype=subtype)
+				elif maintype == 'image':
+					msg = MIMEImage(open(f.strip(), 'rb').read(), _subtype=subtype)
+				elif maintype == 'audio':
+					msg = MIMEAudio(open(f.strip(), 'rb').read(), _subtype=subtype)
+				else:
+					msg = MIMEBase(maintype, subtype)
+					msg.set_payload(open(f.strip(), 'rb').read(), _subtype=subtype)
+					# Encode the payload using Base64
+					encoders.encode_base64(msg)
+				# Set the filename parameter
+				msg.add_header('Content-Disposition', 'attachment', filename=os.path.basename(f).encode('gb2312'))
+				outer.attach(msg)
+
+		logging.info('mail({0}) from[{1}] to[{2}] created.'.format(outer['subject'], outer['from'] , outer['to']))
+		return outer
+
+	@staticmethod
+	def show_msg(msg):
+		"""show MIMEMultipart
+		"""
+		print 'mail({0}) from[{1}] to[{2}]:'.format(msg['subject'], msg['from'] , msg['to'])
+
+		counter = 1
+		for part in msg.walk():
+			# multipart/* are just containers
+			if part.get_content_maintype() == 'multipart':
+				continue
+			# Applications should really sanitize the given filename so that an
+			# email message can't be used to overwrite important files
+			filename = part.get_filename()
+			if not filename:
+				ext = mimetypes.guess_extension(part.get_content_type())
+				if not ext:
+					# Use a generic bag-of-bits extension
+					ext = '.bin'
+				filename = 'part-%03d%s' % (counter, ext)
+			counter += 1
+			# fp = open(os.path.join(opts.directory, filename), 'wb')
+			# fp.write(part.get_payload(decode=True))
+			# fp.close()
+			print 'mail part: {0}'.format(filename)
+
 
 	def _message_id(self, reply):
 		message_id = None
@@ -179,7 +237,7 @@ def load_msg(section, conf_file='mail.ini'):
 	config.read(conf_file)
 
 	ffrom = formataddr((str(Header(u'业务支撑中心技术组', 'utf-8')), config.get(section, 'from')))
-	ffrom = config.get(section, 'from')
+	# ffrom = config.get(section, 'from')
 	rcpt_tos = config.get(section, 'to').split(',')
 	reply_to = config.get(section, 'cc')
 	subject = config.get(section, 'subject')
@@ -190,12 +248,18 @@ def load_msg(section, conf_file='mail.ini'):
 	return MailTool.msg(ffrom, rcpt_tos, reply_to, subject, content, files)
 
 
-def main():
+def main(args):
+	section = 'GameSDK V5'
+	if len(args) > 1:
+		section = args[1]
+
 	# init smtp tool
 	tool, base_dir = init_smtp()
 
 	# send one mail
-	msg = load_msg('GameSDK V5')
+	print('section = '+section)
+	msg = load_msg(section)
+	MailTool.show_msg(msg)
 
 	try:
 
@@ -208,7 +272,7 @@ def main():
 	tool.close()
 
 if __name__ == '__main__':
-	main()
+	main(sys.argv)
 
 
 
