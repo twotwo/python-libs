@@ -35,6 +35,9 @@ except ImportError:
 
 import ConfigParser, logging
 import codecs, sys
+
+from string import Template
+from datetime import datetime, timedelta
 """
 一个简单的邮件发送工具
 
@@ -240,7 +243,8 @@ def load_msg(section, conf_file='mail.ini'):
 	# ffrom = config.get(section, 'from')
 	rcpt_tos = config.get(section, 'to').split(',')
 	reply_to = config.get(section, 'cc')
-	subject = config.get(section, 'subject')
+	template = Template(config.get(section, 'subject'))
+	subject = template.substitute(date=(datetime.today()-timedelta(days=1)).strftime('%Y-%m-%d'))
 	# ToDo: load content from text file
 	content = config.get(section, 'content')
 	files = config.get(section, 'files').split(',')
