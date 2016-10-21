@@ -73,7 +73,7 @@ def text(axes, xs, y, values):
 		axes.text(x, y, '%d' % int(value), fontsize=8, bbox=dict(facecolor='blue', alpha=0.1),
 			ha='center', va='bottom')
 
-def paint(file, picturename='bar.png'):
+def paint(file, picturename='bar.png', show=True):
 
 	##################################################
 	# Load Response Data
@@ -109,6 +109,7 @@ def paint(file, picturename='bar.png'):
 	##################################################
 	# Plot to Bar Chart
 	##################################################
+	plt.style.use('fivethirtyeight')
 	ind = np.arange(N)  # the x locations for the groups
 	width = 0.35        # the width of the bars
 
@@ -133,7 +134,7 @@ def paint(file, picturename='bar.png'):
 	text(ax, ind + width, height, respCount)
 
 	plt.savefig(picturename)
-	# plt.show()
+	if show: plt.show()
 
 def main():
 	parser = argparse.ArgumentParser(description='Create Bar Chart from log.')
@@ -141,13 +142,16 @@ def main():
 											help='the sdk log file')
 	parser.add_argument('-p', dest='picturename', type=str, default='chart.png',
 											help='The name of the chart picture.')
+	parser.add_argument('--show', dest='show', action='store_true')
+	parser.add_argument('--not-show', dest='show', action='store_false')
+	parser.set_defaults(show=True)
 
 	args = parser.parse_args()
 
 	print "logfile: " + args.logfile
 	print "picturename: " + args.picturename
 
-	paint(file=args.logfile, picturename=args.picturename)
+	paint(file=args.logfile, picturename=args.picturename, show=args.show)
 
 if __name__ == '__main__':
 	'''
