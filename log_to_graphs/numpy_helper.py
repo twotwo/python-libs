@@ -107,4 +107,4 @@ if __name__ == '__main__':
 	helper.npz_to_data()
 	print len(helper.day_requests)
 	print [len(resp) for resp in helper.day_responses]
-	print [np.sum(err) for err in helper.day_responses_err]
+	print [np.sum(err[0]) for err in helper.day_responses_err]
