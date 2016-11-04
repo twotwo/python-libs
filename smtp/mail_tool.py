@@ -132,6 +132,9 @@ class MailTool(object):
 				msg.add_header('Content-Disposition', 'attachment', filename=os.path.basename(f).encode('gb2312'))
 				outer.attach(msg)
 
+		# Add end mark in mail
+		outer.attach(MIMEText('<p><b>--end--</b></p>', 'html', 'utf8'))
+
 		logging.info('mail({0}) from[{1}] to[{2}] created.'.format(outer['subject'], outer['from'] , outer['to']))
 		return outer
 
@@ -253,6 +256,9 @@ def load_msg(section, conf_file='mail.ini'):
 
 
 def main(args):
+	"""
+	python mail_tool.py test
+	"""
 	section = 'GameSDK V5'
 	if len(args) > 1:
 		section = args[1]
@@ -271,6 +277,7 @@ def main(args):
 
 	except Exception as e:
 		logging.error('Exception({0}): on sending {1}'.format(e.message, msg['subject']))
+		print 'Exception({0}): on sending {1}'.format(e.message, msg['subject'])
 
 	# release smtp connection
 	tool.close()

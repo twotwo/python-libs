@@ -70,8 +70,9 @@ def paint(file, picturename,title,  show=True):
 	# requests = load_requests(file)
 	from numpy_helper import Helper
 
-	helper = Helper(file, 'monkey.npz')
-	helper.npz_to_data()
+	helper = Helper(file, 'project_x.npz')
+	# helper.npz_to_data()
+	helper.log_to_data()
 
 	requests = helper.day_requests
 	responses = helper.day_responses
@@ -95,14 +96,14 @@ def paint(file, picturename,title,  show=True):
 	# Plot to Chart
 	##################################################
 	group = 60
-	fig = plt.figure(figsize=(16, 8))
+	fig = plt.figure(figsize=(15, 15))
 	# plt.style.use('classic')
 	# 设置图的底边距
 	plt.subplots_adjust(bottom = 0.15)
 	#开启网格
 	plt.grid()
 	# picture title
-	fig.suptitle(title, fontsize=16, fontweight=1000)
+	fig.suptitle(title, fontsize=16, fontweight=900)
 
 	# subplot 1
 	# axes = plt.subplot(2,1,1)
@@ -111,9 +112,9 @@ def paint(file, picturename,title,  show=True):
 	# text(axes, np.arange(24)+0.8, count_by_hours, count_by_hours)
 	# plt.xticks(np.arange(24), labels)
 	axes = plt.subplot(3,1,1)
-	bars1 = axes.bar(np.arange(24), count_by_hours, width, label=u'All Requests', color='g')
-	bars2 = axes.bar(np.arange(24)+width, [np.sum(err[0]) for err in helper.day_responses_err], width, label=u'Errors', color='r')
-	plt.ylabel('Daily Process by Hours')
+	bars1 = axes.bar(np.arange(24)+width, count_by_hours, width, label=u'All Requests', color='g')
+	bars2 = axes.bar(np.arange(24)+width*2, [np.sum(err[0]) for err in helper.day_responses_err], width, label=u'Errors', color='r')
+	plt.ylabel('Daily Processes by Hours')
 	plt.xticks(np.arange(24), labels)
 	autolabel(bars1, axes)
 	autolabel(bars2, axes)
@@ -141,7 +142,7 @@ def paint(file, picturename,title,  show=True):
 	bars1 = axes.bar(np.arange(24), [np.mean(resp[-1000:]) for resp in resps_sorted], width, label=u'Last 1000', color='g')
 	bars2 = axes.bar(np.arange(24)+width, [np.mean(resp[-100:]) for resp in resps_sorted], width, label=u'Last 100', color='b')
 	bars3 = axes.bar(np.arange(24)+width*2, [np.mean(resp[-10:]) for resp in resps_sorted], width, label=u'Last 10', color='r')
-	plt.ylabel('Daily Process by Hours')
+	plt.ylabel('Average Response Time(ms)')
 	plt.xticks(np.arange(24), labels)
 	autolabel(bars1, axes)
 	autolabel(bars2, axes)
