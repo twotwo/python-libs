@@ -42,10 +42,21 @@ class Helper(object):
 		parse log requests
 		return throughput each second
 		"""
-		day_requests = []
-		
 		# 1  23:59:59
 		cmd='cut -c11-19 %s |sort | uniq -c' % file
+		return Helper.parse_requests(cmd)
+
+	@staticmethod
+	def parse_requests(cmd):
+		"""
+		parse log requests through cmd
+		return throughput each second
+
+		ssh 10.75.1.12 -p 2188 "cut -c11-19 /data/logs/fusdk-rsyslog/fusdkhttp.2016-11-06.log |sort | uniq -c"
+		#FUSDK
+		"""
+		day_requests = []
+		
 		buff = {}
 		for line in Popen(cmd, shell=True, bufsize=102400, stdout=PIPE).stdout:
 			try:
@@ -96,15 +107,15 @@ class Helper(object):
 		resp_err = []
 		for i in range(24):
 			resp.append(day_responses[i])
-			resp_err.append(day_responses_err[i])
+			resp_err.append(len(day_responses_err[i])>0 and day_responses_err[i] or [0,0])
 		return resp, resp_err
 
 if __name__ == '__main__':
-	helper = Helper('sdk_perform.log', 'monkey.npz')
+	helper = Helper('pay_perform.log.20161106', 'monkey.npz')
 	
-	# helper.log_to_data()
+	helper.log_to_data()
 	# print len(helper.day_requests), len(helper.day_responses), len(helper.day_responses_err)
-	helper.npz_to_data()
+	# helper.npz_to_data()
 	print len(helper.day_requests)
 	print [len(resp) for resp in helper.day_responses]
 	print [np.sum(err[0]) for err in helper.day_responses_err]

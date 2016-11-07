@@ -48,48 +48,25 @@ def autolabel(bars, axes):
 	# attach some text labels
 	for bar in bars:
 		height = bar.get_height()
+		if '%f' % float(height) == 'nan': height = 0
 		axes.text(bar.get_x() + bar.get_width()/2., 1.05*height,
-				'%d' % int(height),
-				ha='center', va='bottom')
+				'%d' % int(height), ha='center', va='bottom')
 
 def text(axes, xs, ys, values):
 	for x, y, value in zip(xs, ys, values):
 		axes.text(x, 1.05*y, '%d' % int(value), fontsize=10, fontweight=800, bbox=dict(facecolor='green', alpha=0.8),
 			ha='right', va='baseline')
 
-def paint(file, picturename,title,  show=True):
+def paint(helper, picturename, title, show=True):
 
 	for i in range(N):	# init x labels
 		labels.append( str(i)+':00' )
 
 	width = 0.35        # the width of the bars
 
-	##################################################
-	# Load Response Data
-	##################################################
-	# requests = load_requests(file)
-	from numpy_helper import Helper
-
-	helper = Helper(file, 'project_x.npz')
-	# helper.npz_to_data()
-	helper.log_to_data()
-
 	requests = helper.day_requests
 	responses = helper.day_responses
 	resp_errs = helper.day_responses_err
-	
-
-	##################################################
-	# Calculate Needed Values
-	##################################################
-	(max_count, median_count, mean_count, min_count) = sample_by_group(requests, 60)
-
-	count_by_hours = []
-	for a in np.array(requests).reshape(24, 60*60):
-		count_by_hours.append(np.sum(a))
-
-	# Sorted by Response Time
-	resps_sorted = [np.sort(resp) for resp in helper.day_responses]
 
 
 	##################################################
@@ -105,24 +82,33 @@ def paint(file, picturename,title,  show=True):
 	# picture title
 	fig.suptitle(title, fontsize=16, fontweight=900)
 
-	# subplot 1
-	# axes = plt.subplot(2,1,1)
-	# plt.plot(np.arange(24), count_by_hours, 'yo-')
-	# plt.ylabel('Daily Requests by Hours')
-	# text(axes, np.arange(24)+0.8, count_by_hours, count_by_hours)
-	# plt.xticks(np.arange(24), labels)
+	##################################################
+	# subplot 1: 
+	##################################################
+	count_by_hours = []
+	for a in np.array(helper.day_requests).reshape(24, 60*60):
+		count_by_hours.append(np.sum(a))
+
 	axes = plt.subplot(3,1,1)
 	bars1 = axes.bar(np.arange(24)+width, count_by_hours, width, label=u'All Requests', color='g')
-	bars2 = axes.bar(np.arange(24)+width*2, [np.sum(err[0]) for err in helper.day_responses_err], width, label=u'Errors', color='r')
+	autolabel(bars1, axes)
+
+	if helper.day_responses_err != None:
+		bars2 = axes.bar(np.arange(24)+width*2, [np.sum(err[0]) for err in helper.day_responses_err], width, label=u'Errors', color='r')
+		autolabel(bars2, axes)
+
 	plt.ylabel('Daily Processes by Hours')
 	plt.xticks(np.arange(24), labels)
-	autolabel(bars1, axes)
-	autolabel(bars2, axes)
+	
+	
 	plt.legend( loc='best', fontsize='x-small' )
 
 
-	# add some text for labels, title and axes ticks
-	# subplot 2
+	#####################################################
+	# subplot 2: plot throughput by helper.day_requests
+	#####################################################
+	(max_count, median_count, mean_count, min_count) = sample_by_group(helper.day_requests, 60)
+
 	plt.subplot(3, 1, 2)
 	plt.plot(np.arange(group * 24), max_count, label=u'Max Requests', color='r')
 	plt.plot(np.arange(group * 24), median_count, label=u'Median Requests', color='g')
@@ -136,18 +122,23 @@ def paint(file, picturename,title,  show=True):
 	plt.xticks(ind, labels)
 	plt.legend( loc='best', fontsize='x-small' )
 
-	# subplot 3
-	axes = plt.subplot(3, 1, 3)
+	#####################################################
+	# subplot 3: plot response time by helper.day_responses
+	#####################################################
+	if helper.day_responses != None:
+		# Sorted by Response Time
+		resps_sorted = [np.sort(resp) for resp in helper.day_responses]
 
-	bars1 = axes.bar(np.arange(24), [np.mean(resp[-1000:]) for resp in resps_sorted], width, label=u'Last 1000', color='g')
-	bars2 = axes.bar(np.arange(24)+width, [np.mean(resp[-100:]) for resp in resps_sorted], width, label=u'Last 100', color='b')
-	bars3 = axes.bar(np.arange(24)+width*2, [np.mean(resp[-10:]) for resp in resps_sorted], width, label=u'Last 10', color='r')
-	plt.ylabel('Average Response Time(ms)')
-	plt.xticks(np.arange(24), labels)
-	autolabel(bars1, axes)
-	autolabel(bars2, axes)
-	autolabel(bars3, axes)
-	plt.legend( loc='best', fontsize='x-small' )
+		axes = plt.subplot(3, 1, 3)
+		bars1 = axes.bar(np.arange(24), [np.mean(resp[-1000:]) for resp in resps_sorted], width, label=u'Last 1000', color='g')
+		bars2 = axes.bar(np.arange(24)+width, [np.mean(resp[-100:]) for resp in resps_sorted], width, label=u'Last 100', color='b')
+		bars3 = axes.bar(np.arange(24)+width*2, [np.mean(resp[-10:]) for resp in resps_sorted], width, label=u'Last 10', color='r')
+		plt.ylabel('Average Response Time(ms)')
+		plt.xticks(np.arange(24), labels)
+		autolabel(bars1, axes)
+		autolabel(bars2, axes)
+		autolabel(bars3, axes)
+		plt.legend( loc='best', fontsize='x-small' )
 
 
 	#自动调整label显示方式，如果太挤则倾斜显示
@@ -160,6 +151,8 @@ def main():
 	parser = argparse.ArgumentParser(description='Create Bar Chart from log.')
 	parser.add_argument('-f', dest='logfile', type=str, default='',
 											help='the sdk log file')
+	parser.add_argument('-c', dest='cmd', type=str, default='',
+											help='parse throughput command')
 	parser.add_argument('-p', dest='picturename', type=str, default='request.png',
 											help='The name of the chart picture.')
 	parser.add_argument('-t', dest='title', type=str, default='',
@@ -173,7 +166,23 @@ def main():
 	print "logfile: " + args.logfile
 	print "picturename: " + args.picturename
 
-	paint(file=args.logfile, picturename=args.picturename, title=args.title, show=args.show)
+	##################################################
+	# Load Response Data
+	##################################################
+	# requests = load_requests(file)
+	from numpy_helper import Helper
+
+	helper = Helper(args.logfile, 'project_x.npz')
+	# helper.npz_to_data()
+	
+	if len(args.cmd) > 10:
+		cmd = 'cut -c11-19 /opt/local/ide/git_storage/github/tools-python/log_to_graphs/sdk_perform.log |sort | uniq -c'
+		helper.day_requests = Helper.parse_requests(args.cmd)
+		helper.day_responses = None
+		helper.day_responses_err = None
+	else:
+		helper.log_to_data()
+	paint(helper, picturename=args.picturename, title=args.title, show=args.show)
 
 if __name__ == '__main__':
 	'''
