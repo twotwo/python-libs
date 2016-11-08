@@ -116,21 +116,25 @@ class MailTool(object):
 				maintype, subtype = ctype.split('/', 1)
 				logging.info('mail add attached: [{0}/{1}]{2}'.format(maintype, subtype,os.path.basename(f).encode('gb2312') ))
 
-				if maintype == 'text':
-					# Note: we should handle calculating the charset
-					msg = MIMEText(open(f.strip(), 'rb').read(), _subtype=subtype)
-				elif maintype == 'image':
-					msg = MIMEImage(open(f.strip(), 'rb').read(), _subtype=subtype)
-				elif maintype == 'audio':
-					msg = MIMEAudio(open(f.strip(), 'rb').read(), _subtype=subtype)
-				else:
-					msg = MIMEBase(maintype, subtype)
-					msg.set_payload(open(f.strip(), 'rb').read(), _subtype=subtype)
-					# Encode the payload using Base64
-					encoders.encode_base64(msg)
-				# Set the filename parameter
-				msg.add_header('Content-Disposition', 'attachment', filename=os.path.basename(f).encode('gb2312'))
-				outer.attach(msg)
+				try:
+					if maintype == 'text':
+						# Note: we should handle calculating the charset
+						msg = MIMEText(open(f.strip(), 'rb').read(), _subtype=subtype)
+					elif maintype == 'image':
+						msg = MIMEImage(open(f.strip(), 'rb').read(), _subtype=subtype)
+					elif maintype == 'audio':
+						msg = MIMEAudio(open(f.strip(), 'rb').read(), _subtype=subtype)
+					else:
+						msg = MIMEBase(maintype, subtype)
+						msg.set_payload(open(f.strip(), 'rb').read(), _subtype=subtype)
+						# Encode the payload using Base64
+						encoders.encode_base64(msg)
+					# Set the filename parameter
+					msg.add_header('Content-Disposition', 'attachment', filename=os.path.basename(f).encode('gb2312'))
+					outer.attach(msg)
+				except Exception as e:
+					# Add attach file errors
+					outer.attach(MIMEText('<p><b>failed to add {0}</b></p><p color="red">msg: {1}</p>'.format(f.strip(), e.message), 'html', 'utf8'))
 
 		# Add end mark in mail
 		outer.attach(MIMEText('<p><b>--end--</b></p>', 'html', 'utf8'))
@@ -181,7 +185,7 @@ class MailTool(object):
 			logging.info('mail({0}) from[{1}] to[{2}] sent'.format(msg['subject'], msg['from'] , msg['to']))
 			return True
 		except Exception as e:
-			logging.error('mail({0}) to {1} sent failed: msg = {2}'.format(msg['subject'], msg['to'], e.message))
+			logging.error('mail({0}) to {1} sent failed: msg = {2}'.format(msg['subject'], msg['to'], e))
 		
 		return False
 
@@ -284,6 +288,4 @@ def main(args):
 
 if __name__ == '__main__':
 	main(sys.argv)
-
-
 
