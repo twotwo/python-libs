@@ -134,7 +134,7 @@ class MailTool(object):
 					outer.attach(msg)
 				except Exception as e:
 					# Add attach file errors
-					outer.attach(MIMEText('<p><b>failed to add {0}</b></p><p color="red">msg: {1}</p>'.format(f.strip(), e.message), 'html', 'utf8'))
+					outer.attach(MIMEText('<p><b>failed to add {0}</b></p><pre>msg: <span style="color:red; font-size:18px;">{1}</span></pre>'.format(f.strip(), e), 'html', 'utf8'))
 
 		# Add end mark in mail
 		outer.attach(MIMEText('<p><b>--end--</b></p>', 'html', 'utf8'))
