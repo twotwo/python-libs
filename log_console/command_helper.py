@@ -18,6 +18,8 @@ class Result(object):
 
 class CommandUtil(object):
 
+	log_dir=''
+
 	@staticmethod
 	def gen_command(dev_id, app_id, event_filter, columns, lines):
 		'''生成要执行的查询命令
@@ -25,7 +27,13 @@ class CommandUtil(object):
 		# tail -n20000 /data/logs/fltranslog/2016-08-05.log |awk 'BEGIN{FS="\\\\x02"} {if($3==".." && $20=="..") print $0}'|awk -v Col="c17" -f trimcells.awk
 		template_cmd = 'tail -n%(lines)s %(log_file)s %(grep_pattern)s%(awk_match_pattern)s|awk %(awk_value)s -f trimcells.awk'
 
-		log_file = date.today().strftime('/data/logs/fltranslog/%Y-%m-%d.log')
+		if len(CommandUtil.log_dir)==0:
+			import ConfigParser
+			config = ConfigParser.RawConfigParser(allow_no_value=True)
+			config.read('console.ini')
+			CommandUtil.log_dir = config.get('log', 'log_dir')
+			print 'log_dir loaded: '+CommandUtil.log_dir
+		log_file = date.today().strftime(CommandUtil.log_dir+'/%Y-%m-%d.log')
 		if not os.access(log_file, os.F_OK):
 			log_file = '~/app/python/web/web.py/2016-07-27.log' # buff.log
 		
@@ -65,7 +73,7 @@ class CommandUtil(object):
 
 		# c17
 		titles = [u'EventID',u'ReceiveTime', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'DevID', u'AccountID', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName', u'EventValue',]
-		if columns=='all': titles = [u'EventID', u'ReceiveTime', u'Log Time', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'设备型号', u'BrandName', u'Serial',u'IMEI', u'IMSI', u'DevID', u'IDFA', u'IDFV', 'Screen', u'Lang', u'GPS', u'Net', 'Machine', u'AccountID', u'AccountName', u'AccountType', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName', u'EventValue', u'DataSrouce', u'Reserved',]
+		if columns=='all': titles = [u'EventID', u'ReceiveTime', u'Log Time', u'AppID', u'UID', u'SDK Ver', u'ChannelID', u'Game Ver', u'OS','IP Addr', u'MacAddr', u'设备型号', u'BrandName', u'Serial',u'IMEI', u'IMSI', u'DevID', u'IDFA', u'IDFV', 'Screen', u'Lang', u'GPS', u'Net', 'Machine', u'AccountID', u'AccountName', u'AccountType', u'ServerID', u'RoleLevel', u'RoleID', u'RoleName', u'EventValue', u'Test',] # u'DataSrouce', u'Reserved',]
 		raws = [line.split('\\x02') for line in codecs.decode(out.strip('\n'), 'utf-8').split('\n')]
 		if columns=='c10': titles = [u'EventID' ,u'ReceiveTime', u'AppID', u'UID', u'ChannelID', u'DevID', u'AccountID', u'RoleID', u'RoleName', u'EventValue']
 		raws = [line.split('\\x02') for line in codecs.decode(out.strip('\n'), 'utf-8').split('\n')]

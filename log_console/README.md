@@ -4,11 +4,11 @@
 
 依赖
 -------
- * git: http://wiki.li3huo.com/Git
- * python v2.7.x: https://www.python.org/downloads/release/python-2711/
- * supervisor: http://wiki.li3huo.com/supervisor pip install --upgrade pip; pip install --upgrade --force-reinstall setuptools supervisor pip Distribute
- * web.py: http://wiki.li3huo.com/webpy
- * Jinja2: http://wiki.li3huo.com/Python_Template_Engine#Jinja2
+ * [git](http://wiki.li3huo.com/Git)
+ * [python v2.7.x](https://www.python.org/downloads/release/python-2711/)
+ * [supervisor](http://wiki.li3huo.com/supervisor):  pip install --upgrade pip; pip install --upgrade --force-reinstall setuptools supervisor pip Distribute
+ * [web.py](http://wiki.li3huo.com/webpy)
+ * [Jinja2](http://wiki.li3huo.com/Python_Template_Engine#Jinja2)
 
 安装
 -------
