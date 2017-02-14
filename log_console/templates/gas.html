@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>GAS Log Console</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="/static/css/reset.css">
+		<link rel="stylesheet" href="/static/css/defaultTheme.css" media="screen" />
+		<link rel="stylesheet" href="/static/css/myTheme.css" media="screen" />
+
+		<style type="text/css">
+			.container{
+			margin-left: auto;
+			margin-right: auto;
+			width: 100%;
+			}
+			.grid{
+			/*display: inline;float: left;*/
+			margin-left: 10px;
+			margin-right: 10px;
+			}
+			body { font: normal 12px auto "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif; color: #4f6b72; background: #d8e9e8; }
+			table td, table th{
+				word-wrap: break-word;
+				word-break: normal;
+				word-break:break-all;
+				border-right: 1px solid #C1DAD7; border-bottom: 1px solid #C1DAD7;
+				padding: 1px 1px 1px 2px; color: #4f6b72;
+			}
+			.yellow {background-color: #ffff00}
+			.red {background-color: #DC143C}
+		</style>
+	</head>
+	<body>
+		<div class="container divider">
+			<div class="grid">
+				<form name="main" method="post">
+					{{ form.render() }}
+					<input type="submit" />
+				</form>
+				<p></p>
+				<p></p>
+				{% if result != None %}
+					<p><b class="yellow">[{{ result.cost_time }}s]</b><code>{{ result.cmd }}</code></p>
+				{% endif %}
+			</div>
+			<div class="height400">
+				<table class="fancyTable" id="myTable01" cellpadding="0" cellspacing="0">
+					<thead><tr>
+						<th>Lines</th>
+					</tr></thead>
+					<tbody>
+						{% for record in result.raws %}
+							<tr>
+								{% for cell in record %}
+									<td class="blue">{{ cell }}</td>
+								{% endfor %}
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			<div class="clear"><div class="clear"><pre class="red">{{ result.err }}</pre></div></div>
+		</div>
+	</body>
+</html>

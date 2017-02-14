@@ -3,6 +3,7 @@
 import time #计算命令执行时长
 import subprocess, codecs, os
 from datetime import date
+import ConfigParser
 
 class Result(object):
 	def __init__(self, cmd, out, err, titles, raws, cost_time):
@@ -28,7 +29,6 @@ class CommandUtil(object):
 		template_cmd = 'tail -n%(lines)s %(log_file)s %(grep_pattern)s%(awk_match_pattern)s|awk %(awk_value)s -f trimcells.awk'
 
 		if len(CommandUtil.log_dir)==0:
-			import ConfigParser
 			config = ConfigParser.RawConfigParser(allow_no_value=True)
 			config.read('console.ini')
 			CommandUtil.log_dir = config.get('log', 'log_dir')
@@ -64,7 +64,18 @@ class CommandUtil(object):
 		return template_cmd % values_cmd
 
 	@staticmethod
-	def excute(dev_id, app_id, event_filter, columns, lines='100', show_lines='100', reversed=False):
+	def excute(cmd):
+		start_point = time.time()
+		print cmd
+		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+		out, err = process.communicate()
+		return (cmd, time.time()-start_point, out, err)
+
+
+	@staticmethod
+	def excute1(dev_id, app_id, event_filter, columns, lines='100', show_lines='100', reversed=False):
+		"""TODO: 重构成单一的命令执行，把结果组装分离出来
+		"""
 		start_point = time.time()
 		cmd = CommandUtil.gen_command(dev_id, app_id, event_filter, columns, lines)
 		print cmd
@@ -85,6 +96,19 @@ class CommandUtil(object):
 		if len(raws) > int(show_lines): raws = raws[0:int(show_lines)]
 
 		return Result(cmd, out, err, titles, raws, time.time()-start_point)
+
+	@staticmethod
+	def excute2(cmd_id, queryStr, reversed=False):
+		"""执行预定义的指令，显示执行结果
+		"""
+		config = ConfigParser.RawConfigParser(allow_no_value=True)
+		config.read('console.ini')
+		cmd = config.get('cmd', cmd_id) + ' ' + queryStr
+		(cmd, cost, out, err) = CommandUtil.excute(cmd)
+
+		raws = out.split('\n')
+
+		return Result(cmd, out, err, None, raws, cost)
 
 if __name__ == '__main__':
 	print CommandUtil.excute()
