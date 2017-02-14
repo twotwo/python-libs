@@ -98,7 +98,7 @@ class CommandUtil(object):
 		return Result(cmd, out, err, titles, raws, time.time()-start_point)
 
 	@staticmethod
-	def excute2(cmd_id, queryStr, reversed=False):
+	def excute2(cmd_id, queryStr, show_lines='100', reversed=False):
 		"""执行预定义的指令，显示执行结果
 		"""
 		config = ConfigParser.RawConfigParser(allow_no_value=True)
@@ -106,13 +106,19 @@ class CommandUtil(object):
 		cmd = config.get('cmd', cmd_id)
 
 		if not os.access(cmd, os.F_OK):
-			cmd = 'ls -l'
+			cmd = 'ls -l 1>&2'
 		elif len(queryStr) > 0:
 			cmd = cmd + ' ' + queryStr
 		
 		(cmd, cost, out, err) = CommandUtil.excute(cmd)
 
 		raws = out.split('\n')
+
+		if reversed:
+			raws.reverse()
+			print 'reversed@excute'
+
+		if len(raws) > int(show_lines): raws = raws[0:int(show_lines)]
 
 		return Result(cmd, out, err, None, raws, cost)
 

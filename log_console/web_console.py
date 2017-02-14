@@ -76,16 +76,36 @@ class GameAd:
 	def GET(self):
 		form = web.form.Form( 
 			web.form.Textbox("queryStr", description=u'AppID、IDFA任意关键字'),
+
+			web.form.Textbox("ShowLines", 
+				web.form.notnull,
+				web.form.regexp('\d+', 'Must be a digit'),
+				web.form.Validator('Not more than 200', lambda x:int(x)<201),
+				description=u'显示的条数', 
+				value="100", 
+			),
+
+			web.form.Checkbox('Reversed', description=u'是否倒序', value=True, checked=True), 
 		)
 		return render_template('gas.html', form=form, result = None)
 
 	def POST(self):
 		form = web.form.Form( 
 			web.form.Textbox("queryStr", description=u'AppID？IDFA？'),
+
+			web.form.Textbox("ShowLines", 
+				web.form.notnull,
+				web.form.regexp('\d+', 'Must be a digit'),
+				web.form.Validator('Not more than 200', lambda x:int(x)<201),
+				description=u'显示的条数', 
+				value="100", 
+			),
+
+			web.form.Checkbox('Reversed', description=u'是否倒序', value=True, checked=True), 
 		)
 		result = None
 		if form.validates():
-			result = CommandUtil.excute2(cmd_id='cmd_1', queryStr=form.d.queryStr)
+			result = CommandUtil.excute2(cmd_id='cmd_1', queryStr=form.d.queryStr, show_lines=form.d.ShowLines, reversed=form.d.Reversed)
 			
 		return render_template('gas.html',form=form, result=result)
 
