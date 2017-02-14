@@ -103,7 +103,13 @@ class CommandUtil(object):
 		"""
 		config = ConfigParser.RawConfigParser(allow_no_value=True)
 		config.read('console.ini')
-		cmd = config.get('cmd', cmd_id) + ' ' + queryStr
+		cmd = config.get('cmd', cmd_id)
+
+		if not os.access(cmd, os.F_OK):
+			cmd = 'ls -l'
+		elif len(queryStr) > 0:
+			cmd = cmd + ' ' + queryStr
+		
 		(cmd, cost, out, err) = CommandUtil.excute(cmd)
 
 		raws = out.split('\n')

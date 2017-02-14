@@ -51,9 +51,7 @@
 					<tbody>
 						{% for record in result.raws %}
 							<tr>
-								{% for cell in record %}
-									<td class="blue">{{ cell }}</td>
-								{% endfor %}
+								<td class="blue">{{ record }}</td>
 							</tr>
 						{% endfor %}
 					</tbody>
