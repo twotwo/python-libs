@@ -1,6 +1,4 @@
-# 日志转图工具 #
-
-
+# 日志转图工具
 
 ## 依赖
 
@@ -11,19 +9,57 @@
 ## 功能描述
 
 ### 帮助脚本: gen_report.sh
-multitail --no-repeat -z -u 1 -l 'ssh 10.75.1.139 -p2188 "cat /backup/pay-log/pay_perform.log"' > 1.txt
-rsync -avzp -e "ssh -p 2188" 10.75.1.139:/backup/pay-log/pay_perform.log /data/daily_report/pay-log/10.75.1.139/pay_perform.log
-sort -m /data/pay-log/10.75.1.139/pay_perform.log -o /data/pay-log/pay_perform.log
 
-	#!/bin/sh
-	rm /data/daily_report/pay-log/gamepay_daily_report.png
-	yesterday=`date -d last-day +%Y%m%d`;
-	logfile="/data/daily_report/pay-log/report/pay_perform.log.${yesterday}";
-	rsync -avzp -e "ssh -p 2188" 10.75.1.139:/backup/pay-log/pay_perform.log.${yesterday} /data/daily_report/pay-log/10.75.1.139/
-	sort -m /data/daily_report/pay-log/10.75.1.139/pay_perform.log.${yesterday} -o ${logfile}
-	picfile="/data/daily_report/pay-log/report/daily-report-${yesterday}.png";
-	python /data/daily_report/daily_log_plot.py -f "${logfile}" -p ${picfile} -t "GamePay Daily Report(${yesterday})" --not-show
-	cp ${picfile} /data/daily_report/pay-log/gamepay_daily_report.png
+- pay
+
+		#!/bin/sh
+		rm /data/daily_report/pay-log/gamepay_daily_report.png
+		yesterday=`date -d last-day +%Y%m%d`;
+		logfile="/data/daily_report/pay-log/report/pay_perform.log.${yesterday}";
+		rsync -avzp -e "ssh -p 2188" 10.75.0.167:/backup/pay-log/pay_perform.log.${yesterday} /data/daily_report/pay-log/10.75.0.167/
+		rsync -avzp -e "ssh -p 2188" 10.75.1.139:/backup/pay-log/pay_perform.log.${yesterday} /data/daily_report/pay-log/10.75.1.139/
+		sort -m /data/daily_report/pay-log/10.75.0.167/pay_perform.log.${yesterday} /data/daily_report/pay-log/10.75.0.167/pay_perform.log.${yesterday} -o ${logfile}
+		picfile="/data/daily_report/pay-log/report/daily-report-${yesterday}.png";
+		python /data/daily_report/daily_log_plot.py -f "${logfile}" -p ${picfile} -t "GamePay Daily Report(${yesterday})" --not-show
+		cp ${picfile} /data/daily_report/pay-log/gamepay_daily_report.png
+
+- logon_v4
+
+		#!/bin/sh
+		rm /data/daily_report/logon_v4-log/logon_daily_report.png
+		basedir=/data/daily_report/logon_v4-log
+		yesterday=`date -d last-day +%Y%m%d`;
+		logfile="${basedir}/report/gamesdk_conn.log.${yesterday}";
+		for ip in 10.75.1.47 10.75.0.71 10.75.1.20; do
+		rsync -avzp -e "ssh -p 2188" ${ip}:/backup/sdk-log/gamesdk/gamesdk_conn.log.${yesterday} ${basedir}/${ip}/
+		done
+		sort -m ${basedir}/10.75.1.47/gamesdk_conn.log.${yesterday} ${basedir}/10.75.0.71/gamesdk_conn.log.${yesterday} ${basedir}/10.75.1.20/gamesdk_conn.log.${yesterday} -o ${logfile}
+		picfile="${basedir}/report/daily-report-${yesterday}.png";
+		cmd="cut -c11-19 ${logfile} |sort | uniq -c"
+		python /data/daily_report/daily_log_plot.py -c "${cmd}" -p ${picfile} -t "GameLogon(V4) Daily Report(${yesterday})" --not-show
+		cp ${picfile} ${basedir}/logon_daily_report.png
+
+		# clean used data
+		for ip in 10.75.1.47 10.75.0.71 10.75.1.20; do
+		rm ${basedir}/${ip}/gamesdk_conn.log.`date -d "-2 day" +%Y%m%d`
+		done
+		rm ${basedir}/report/gamesdk_conn.log.*
+
+
+		# 本机定期执行，激活生成昨日日志
+		1 0 * * * curl -X POST http://localhost:8081/feiliupay4j/gateway/newtrade/0/
+		tail -f /backup/pay-log/pay_perform.log
+- fusdk
+
+		#!/bin/sh
+		rm /data/daily_report/fusdk-log/fusdk_daily_report.png
+		yesterday=`date -d last-day +%Y-%m-%d`;
+		logfile="/data/logs/fusdk-rsyslog/fusdkhttp.${yesterday}.log";
+		picfile="/data/daily_report/fusdk-log/report/daily-report-${yesterday}.png";
+		cmd="ssh 10.75.1.12 -p 2188 \"cut -c11-19 /data/logs/fusdk-rsyslog/fusdkhttp.${yesterday}.log |sort | uniq -c\""
+		python /data/daily_report/daily_log_plot.py -c "${cmd}" -p ${picfile} -t "FUSDK Daily Report(${yesterday})" --not-show
+		cp ${picfile} /data/daily_report/fusdk-log/fusdk_daily_report.png
+
 
 ### numpy_helper.py
 日志解析和存储
@@ -65,5 +101,14 @@ sort -m /data/pay-log/10.75.1.139/pay_perform.log -o /data/pay-log/pay_perform.l
 
 ### Others: ../smtp/mail_tool.py 把报告以邮件形式进行发送
 
-
+#!/bin/sh
+today=`date +%Y-%m-%d`
+for ip in 10.75.2.15 10.75.0.16; do
+  rsync -avzp -e "ssh -p 2188" feiliu-user@${ip}:/data/www/gas.feiliu.com/logs/activate/all/${today}.log ${today}_${ip}.log
+done
+if [ -n "$1" ]; then
+  sort -m ${today}_*.log |grep $1
+else
+  sort -m ${today}_*.log
+fi
 

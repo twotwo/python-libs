@@ -104,7 +104,7 @@ def paint(file, picturename='bar.png', show=True):
 		print i, (np.median(day_response[i]),np.std(day_response[i]) ), range_mean(day_response[i], 0.995), np.max(day_response[i]), len(day_response[i])
 
 	for i in range(N):
-		respCount.append(np.sum(day_response[i]))
+		respCount.append(len(day_response[i]))
 
 	##################################################
 	# Plot to Bar Chart
@@ -133,6 +133,9 @@ def paint(file, picturename='bar.png', show=True):
 	height = np.max(rangeMeans) * 0.85
 	text(ax, ind + width, height, respCount)
 
+	#自动调整label显示方式，如果太挤则倾斜显示
+	fig.autofmt_xdate()
+
 	plt.savefig(picturename)
 	if show: plt.show()
 
@@ -156,7 +159,7 @@ def main():
 if __name__ == '__main__':
 	'''
 	python day_response.py -f sdk_perform.log -p bar.png
-	python2 day_response.py -f /data/monkey-rsyslog/perfom.2016-10-19.log -p monkey-sdk-response.png
+	python2 day_response.py -f /data/monkey-rsyslog/perfom.2016-10-19.log -p monkey-sdk-response.png --not-show
 	'''
 	main()
 	# paint(file='sdk_perform.log')
