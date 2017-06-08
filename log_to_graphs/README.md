@@ -2,6 +2,7 @@
 
 ## 依赖
 
+`pip install matplotlib numpy`
  * matplotlib: http://wiki.li3huo.com/matplotlib
  * NumPy: http://wiki.li3huo.com/NumPy
  * cairo(EC2): py2cairo, cairo

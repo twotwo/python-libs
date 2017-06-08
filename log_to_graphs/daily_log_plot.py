@@ -7,7 +7,7 @@ parse day log to 3 figs: 1. requests count; 2. requests throughput; 3. responses
 Copyright (c) 2016年 li3huo.com All rights reserved.
 """
 
-import argparse
+import argparse,logging
 from subprocess import Popen, PIPE
 
 import numpy as np
@@ -64,9 +64,9 @@ def paint(helper, picturename, title, show=True):
 
 	width = 0.35        # the width of the bars
 
-	requests = helper.day_requests
-	responses = helper.day_responses
-	resp_errs = helper.day_responses_err
+	day_requests = helper.day_requests
+	day_resp_time_by_hour = helper.day_resp_time_by_hour
+	resp_errs = helper.day_resp_err_by_hour
 
 
 	##################################################
@@ -86,15 +86,15 @@ def paint(helper, picturename, title, show=True):
 	# subplot 1: 
 	##################################################
 	count_by_hours = []
-	for a in np.array(helper.day_requests).reshape(24, 60*60):
+	for a in np.array(day_requests).reshape(24, 60*60):
 		count_by_hours.append(np.sum(a))
 
 	axes = plt.subplot(3,1,1)
 	bars1 = axes.bar(np.arange(24)+width, count_by_hours, width, label=u'All Requests', color='g')
 	autolabel(bars1, axes)
 
-	if helper.day_responses_err != None:
-		bars2 = axes.bar(np.arange(24)+width*2, [np.sum(err[0]) for err in helper.day_responses_err], width, label=u'Errors', color='r')
+	if resp_errs != None:
+		bars2 = axes.bar(np.arange(24)+width*2, [np.sum(err[0]) for err in resp_errs], width, label=u'Errors', color='r')
 		autolabel(bars2, axes)
 
 	plt.ylabel('Daily Processes by Hours')
@@ -125,9 +125,9 @@ def paint(helper, picturename, title, show=True):
 	#####################################################
 	# subplot 3: plot response time by helper.day_responses
 	#####################################################
-	if helper.day_responses != None:
+	if day_resp_time_by_hour != None:
 		# Sorted by Response Time
-		resps_sorted = [np.sort(resp) for resp in helper.day_responses]
+		resps_sorted = [np.sort(resp) for resp in day_resp_time_by_hour]
 
 		axes = plt.subplot(3, 1, 3)
 		bars1 = axes.bar(np.arange(24), [np.mean(resp[-1000:]) for resp in resps_sorted], width, label=u'Last 1000', color='g')
@@ -157,6 +157,8 @@ def main():
 											help='The name of the chart picture.')
 	parser.add_argument('-t', dest='title', type=str, default='',
 											help='the image title')
+	parser.add_argument('-n', dest='npz', type=str, default='data.npz',
+											help='NumPy binary file')
 	parser.add_argument('--show', dest='show', action='store_true')
 	parser.add_argument('--not-show', dest='show', action='store_false')
 	parser.set_defaults(show=True)
@@ -171,8 +173,9 @@ def main():
 	##################################################
 	# requests = load_requests(file)
 	from numpy_helper import Helper
+	logging.basicConfig(filename='./l2g.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 
-	helper = Helper(args.logfile, 'project_x.npz')
+	helper = Helper(args.npz)
 	# helper.npz_to_data()
 	
 	if len(args.cmd) > 10:
@@ -181,12 +184,13 @@ def main():
 		helper.day_responses = None
 		helper.day_responses_err = None
 	else:
-		helper.log_to_data()
+		helper.npz_to_data()
 	paint(helper, picturename=args.picturename, title=args.title, show=args.show)
 
 if __name__ == '__main__':
 	'''
 	python daily_log_plot.py -f sdk_perform.log -t "Project xx on Date yy"
+	python daily_log_plot.py -n agent.npz --not-show -t "Project xx on Date yy"
 	'''
 	main()
 	# paint(file='sdk_perform.log')
