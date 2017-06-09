@@ -2,10 +2,10 @@
 
 ## 依赖
 
-`pip install matplotlib numpy`
+`pip install matplotlib numpy cairocffi`
  * matplotlib: http://wiki.li3huo.com/matplotlib
  * NumPy: http://wiki.li3huo.com/NumPy
- * cairo(EC2): py2cairo, cairo
+ * cairo(EC2): py2cairo, cairo, cairocffi
 
 ## 功能描述
 
@@ -50,16 +50,18 @@
 		# 本机定期执行，激活生成昨日日志
 		1 0 * * * curl -X POST http://localhost:8081/feiliupay4j/gateway/newtrade/0/
 		tail -f /backup/pay-log/pay_perform.log
-- fusdk
+- sdk-agent(/data/sdk-agent-data/daily_logs/send_report.sh)
 
 		#!/bin/sh
-		rm /data/daily_report/fusdk-log/fusdk_daily_report.png
+		cd /data/sdk-agent-data/daily_logs
+		rm -rf agent.npz agent.png
 		yesterday=`date -d last-day +%Y-%m-%d`;
-		logfile="/data/logs/fusdk-rsyslog/fusdkhttp.${yesterday}.log";
-		picfile="/data/daily_report/fusdk-log/report/daily-report-${yesterday}.png";
-		cmd="ssh 10.75.1.12 -p 2188 \"cut -c11-19 /data/logs/fusdk-rsyslog/fusdkhttp.${yesterday}.log |sort | uniq -c\""
-		python /data/daily_report/daily_log_plot.py -c "${cmd}" -p ${picfile} -t "FUSDK Daily Report(${yesterday})" --not-show
-		cp ${picfile} /data/daily_report/fusdk-log/fusdk_daily_report.png
+		python numpy_helper.py -c parse -i helper.ini -s agent # parse agent log & save data
+		python daily_log_plot.py -n agent.npz -p agent.png --not-show -t "Project SDK-Agent on Date ${yesterday}" #load agent.npz & paint to agent.png
+		python mail_tool.py
+
+
+		20 2 * * * sh /data/sdk-agent-data/daily_logs/send_report.sh
 
 
 ### numpy_helper.py
