@@ -102,7 +102,9 @@ class Helper(object):
 				hour = int( line[0:2] )
 				cost = line.split()[1]
 				try:
-					if 'ms' == cost_type:
+					if 'string' == cost_type:
+						cost = float( cost.split(':')[-1][0:-1] ) * 1000
+					elif 'ms' == cost_type:
 						cost = int( cost )
 					else:
 						cost = float( cost ) * 1000
@@ -126,57 +128,6 @@ class Helper(object):
 			resp_time_group_by_hour.append(day_responses[i])
 			resp_err_group_by_hour.append(day_responses_err[i])
 		return resp_time_group_by_hour, resp_err_group_by_hour
-
-	@staticmethod
-	def parse_response_by_hour1(file):
-		"""按小时解析请求的响应速度(last 1000/100/10)和失败数量
-		"""
-		#### log format
-		# 20170502235959, 10.163.29.39, [/api/LoginAuth/] [ch=UC, code=0] r = 0.000s, p = 0.166s, w = 0.166s
-		#### parse to
-		# int( line[8:10] ) //小时
-		# float( line.split('w = ')[1][0:-1] ) * 1000 // 响应时间(ms)
-		# int( line.find('code=0')>0 and '0' or 1 ) //服务状态: 0 成功，其余失败
-
-		day_responses = {}
-		day_responses_err = {}
-		# init hours
-		for i in range(24):
-			day_responses[i] = []
-			day_responses_err[i] = []
-
-		with open(file) as f:
-			for line in f:
-				try:
-					# hour = int( line.split('\\x02')[0][11:13] )
-					# cost = int( line.split('\\x02')[7] )
-					# day_responses[hour].append(cost)
-					# code = int( line.split('\\x02')[8] )
-					hour = int( line[8:10] )
-					cost = line.split('w = ')[1].strip('\n')[0:-1]
-					try:
-						cost = float( cost ) * 1000
-					except ValueError as e:
-						cost = float( cost.split(':')[-1] ) * 1000
-					day_responses[hour].append(cost)
-					code = int( line.find('code=0')>0 and '0' or 1 )
-					if code != 0:
-						day_responses_err[hour].append( [code, cost] )
-					else:
-						day_responses_err[hour].append([0,0])
-				except IndexError as e:
-					print 'IndexError:', e.message,  len(line.split('\\x02')), 'line =',line.split('\\x02')
-				except ValueError as e:
-					print 'ValueError:', e.message,  'line=[', line, ']'
-					print 'cost=',line.split('w = ')[1].strip('\n')[0:-1]
-
-				# break
-		resp_time = []
-		resp_err = []
-		for i in range(24):
-			resp_time.append(day_responses[i])
-			resp_err.append(len(day_responses_err[i])>0 and day_responses_err[i] or [0,0])
-		return resp_time, resp_err
 
 
 	def load_npz_data(self):
