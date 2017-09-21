@@ -27,25 +27,30 @@ class Helper(object):
 	def parse(config_file, section, save=False):
 		"""根据配置文件中的配置信息，读取日志，分析出用于出图的数据
 		"""
-		# yesterday
-		timestamp = ( date.today()-timedelta(1) ).strftime('%Y-%m-%d')
-
 		config = ConfigParser.ConfigParser()
 		config.read(config_file)
+
+		timestamp = config.get(section, 'timestamp')
+		yesterday = ( date.today()-timedelta(1) ).strftime(timestamp)
+
 		npz_file = config.get(section, 'npz_file')
-		log_file = config.get(section, 'log_file', 0, {'timestamp': timestamp})
+		log_file = config.get(section, 'log_file', 0, {'yesterday': yesterday})
 		request_cmd = config.get(section, 'request_cmd', 0, {'log_file': log_file})
+		resp_hour_cmd = config.get(section, 'resp_hour_cmd', 0, {'log_file': log_file})
+		cost_type = config.get(section, 'cost_type')
 
 		log( 'npz_file = %s, log_file = %s'% (npz_file,log_file) )
 		log( 'request_cmd = %s'% request_cmd )
+		log( 'resp_hour_cmd = %s'% resp_hour_cmd )
 
 		day_requests = Helper.parse_requests(request_cmd)
-		(resp_time, resp_err) = Helper.parse_response_by_hour(log_file)
+		(resp_time, resp_err) = Helper.parse_response_by_hour(resp_hour_cmd, cost_type)
 
 		if save:
 			np.savez(npz_file, day_requests=day_requests, 
 				day_resp_time_by_hour=resp_time,
 				day_resp_err_by_hour=resp_err)
+			log('parse & saved.')
 
 	@staticmethod
 	def parse_requests(cmd):
@@ -75,7 +80,55 @@ class Helper(object):
 		return day_requests
 
 	@staticmethod
-	def parse_response_by_hour(file):
+	def parse_response_by_hour(cmd, cost_type):
+		"""按小时解析请求的响应速度(last 1000/100/10)和失败数量
+		"""
+		day_responses = {}
+		day_responses_err = {}
+		# init hours
+		for i in range(24):
+			# day_responses[hour] = [per cost,...]
+			day_responses[i] = []
+			# day_responses_err[hour] = [[code, cost],...]
+			day_responses_err[i] = []
+
+		for line in Popen(cmd, shell=True, bufsize=102400, stdout=PIPE).stdout:
+			try:
+				# hour = int( line.split('\\x02')[0][11:13] )
+				# cost = int( line.split('\\x02')[7] )
+				# day_responses[hour].append(cost)
+				# code = int( line.split('\\x02')[8] )
+				# hour cost code
+				hour = int( line[0:2] )
+				cost = line.split()[1]
+				try:
+					if 'ms' == cost_type:
+						cost = int( cost )
+					else:
+						cost = float( cost ) * 1000
+				except ValueError as e:
+					cost = float( cost.split()[-1] ) * 1000
+				day_responses[hour].append(cost)
+				code = int( line.split()[2].strip('\n') )
+				if code != 0:
+					day_responses_err[hour].append( [code, cost] )
+
+			except IndexError as e:
+				print 'IndexError:', e.message, 'line =',line.split()
+			except ValueError as e:
+				print 'ValueError:', e.message,  'line=[', line, ']'
+				print 'cost=',line.split()[1].strip('\n')
+
+		# resp_time_by_hour = [[00 resp time], [01 resp time], ...]
+		resp_time_group_by_hour = []
+		resp_err_group_by_hour = []
+		for i in range(24):
+			resp_time_group_by_hour.append(day_responses[i])
+			resp_err_group_by_hour.append(day_responses_err[i])
+		return resp_time_group_by_hour, resp_err_group_by_hour
+
+	@staticmethod
+	def parse_response_by_hour1(file):
 		"""按小时解析请求的响应速度(last 1000/100/10)和失败数量
 		"""
 		#### log format
