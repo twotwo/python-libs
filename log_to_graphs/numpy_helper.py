@@ -130,29 +130,16 @@ class Helper(object):
 		return resp_time_group_by_hour, resp_err_group_by_hour
 
 
-	def load_npz_data(self):
+	@staticmethod
+	def load_npz_data(npz_file):
 		"""
-		load data from self.npz_file(.npz format file)
+		load data from npz_file(.npz format file)
 		"""
-		with np.load(self.npz_file) as data:
+		# with np.load(npz_file) as data:
+		data = np.load(npz_file)
+		log('file[%s] has %s' % (npz_file, str(data.files)) )
+		return data
 
-			try:
-				self.day_requests = data['day_requests']
-			except:
-				log('npz_to_data: failed to load day_requests!')
-				self.day_requests = None
-
-			try:
-				self.day_resp_time_by_hour = data['day_resp_time_by_hour']
-			except:
-				log('npz_to_data: failed to load day_resp_time_by_hour!')
-				self.day_resp_time_by_hour = None
-
-			try:
-				self.day_resp_err_by_hour = data['day_resp_err_by_hour']
-			except:
-				log('npz_to_data: failed to load day_resp_err_by_hour!')
-				self.day_resp_err_by_hour = None
 
 	def __parse_responses(self, file):
 		"""根据日志具体格式，获取对应的响应时间和服务状态
@@ -224,17 +211,32 @@ def main():
 		Helper.parse(args.ini, args.section, save=save)
 	elif args.cmd == 'load':
 		print 'load from ', args.npz
-		helper = Helper(args.npz)
-		helper.load_npz_data()
+		data = Helper.load_npz_data(args.npz)
+
 		if args.verbose:
-			print len(helper.day_requests), len(helper.day_resp_time_by_hour), len(helper.day_resp_err_by_hour)
-			print 'day_requests[0:60] =', helper.day_requests[0:60]
-			print '================ day_resp_time_by_hour[0:23] ================'
-			for resp in helper.day_resp_time_by_hour:
-				print len(resp), resp[0:10], '...'
-			print '================ day_resp_err_by_hour[0:23] ================'
-			for resp in helper.day_resp_err_by_hour:
-				print len(resp), resp[0:10], '...'
+			for f in data.files:
+				if f == 'day_requests':
+					day_requests_by_hour = data['day_requests'].reshape(24, 3600)
+					print '================    day_requests by hour    ================'
+					print [np.sum(req) for req in day_requests_by_hour]
+
+				elif f == 'day_resp_time_by_hour':
+					resps_sorted = [np.sort(resp) for resp in data['day_resp_time_by_hour']]
+					print '================ day_resp_time_by_hour(last 100) ================'
+					print [np.mean(resp[-100:]) for resp in resps_sorted]
+
+				elif f == 'day_resp_err_by_hour':
+					day_resp_err_by_hour = data['day_resp_err_by_hour']
+					print '================ day_resp_err_by_hour[0:23] ================'
+					print [len(resp) for resp in day_resp_err_by_hour]
+
+				else:
+					print f, 'has', len(data[f]), 'items'
+			# try:
+			# 	day_requests = data['day_requests']
+			# except:
+			# 	log('npz_to_data: failed to load day_requests!')
+			# 	day_requests = None
 
 if __name__ == '__main__':
 	"""python numpy_helper.py -h
