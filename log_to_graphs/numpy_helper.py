@@ -20,37 +20,49 @@ def log(info):
 	print info
 
 class Helper(object):
-	def __init__(self, npz_file):
-		self.npz_file = npz_file
-
-	@staticmethod
-	def parse(config_file, section, save=False):
-		"""根据配置文件中的配置信息，读取日志，分析出用于出图的数据
+	def __init__(self, config_file, section):
+		"""加载配置文件中的配置信息：
+npz_file
+request_cmd
+resp_hour_cmd
+auth_resp_groupby_ch_cmd
 		"""
+		# self.npz_file = npz_file
 		config = ConfigParser.ConfigParser()
 		config.read(config_file)
 
 		timestamp = config.get(section, 'timestamp')
 		yesterday = ( date.today()-timedelta(1) ).strftime(timestamp)
 
-		npz_file = config.get(section, 'npz_file')
+		self.npz_file = config.get(section, 'npz_file')
 		log_file = config.get(section, 'log_file', 0, {'yesterday': yesterday})
-		request_cmd = config.get(section, 'request_cmd', 0, {'log_file': log_file})
-		resp_hour_cmd = config.get(section, 'resp_hour_cmd', 0, {'log_file': log_file})
-		cost_type = config.get(section, 'cost_type')
 
-		log( 'npz_file = %s, log_file = %s'% (npz_file,log_file) )
-		log( 'request_cmd = %s'% request_cmd )
-		log( 'resp_hour_cmd = %s'% resp_hour_cmd )
+		self.cost_type = config.get(section, 'cost_type')
+		self.request_cmd = config.get(section, 'request_cmd', 0, {'log_file': log_file})
+		self.resp_hour_cmd = config.get(section, 'resp_hour_cmd', 0, {'log_file': log_file})
+		self.auth_resp_groupby_ch_cmd = config.get(section, 'auth_resp_groupby_ch_cmd', 0, {'log_file': log_file})
 
-		day_requests = Helper.parse_requests(request_cmd)
-		(resp_time, resp_err) = Helper.parse_response_by_hour(resp_hour_cmd, cost_type)
+		log( 'npz_file = %s, log_file = %s'% (self.npz_file, log_file) )
+		log( 'request_cmd = %s'% self.request_cmd )
+		log( 'resp_hour_cmd = %s'% self.resp_hour_cmd )
+		log( 'auth_resp_groupby_ch_cmd = %s'% self.auth_resp_groupby_ch_cmd )
 
-		if save:
-			np.savez(npz_file, day_requests=day_requests, 
-				day_resp_time_by_hour=resp_time,
-				day_resp_err_by_hour=resp_err)
-			log('parse & saved.')
+	def parse(self, save=False):
+		"""根据加载的配置信息，按指定方式读取日志数据
+		"""
+
+		day_requests = Helper.parse_requests(self.request_cmd)
+		(resp_time, resp_err) = Helper.parse_response_by_hour(self.resp_hour_cmd, self.cost_type)
+
+		return {'day_requests':day_requests, 
+				'day_resp_time_by_hour':resp_time,
+				'day_resp_err_by_hour':resp_err}
+
+		# if save:
+		# 	np.savez(npz_file, day_requests=day_requests, 
+		# 		day_resp_time_by_hour=resp_time,
+		# 		day_resp_err_by_hour=resp_err)
+		# 	log('parse & saved.')
 
 	@staticmethod
 	def parse_requests(cmd):
@@ -94,10 +106,6 @@ class Helper(object):
 
 		for line in Popen(cmd, shell=True, bufsize=102400, stdout=PIPE).stdout:
 			try:
-				# hour = int( line.split('\\x02')[0][11:13] )
-				# cost = int( line.split('\\x02')[7] )
-				# day_responses[hour].append(cost)
-				# code = int( line.split('\\x02')[8] )
 				# hour cost code
 				hour = int( line[0:2] )
 				cost = line.split()[1]
@@ -129,9 +137,49 @@ class Helper(object):
 			resp_err_group_by_hour.append(day_responses_err[i])
 		return resp_time_group_by_hour, resp_err_group_by_hour
 
+	@staticmethod
+	def parse_response_groupbytag(cmd, cost_type):
+		"""命令返回结构: tag cost code
+按照tag把返回结果分组
+		"""
+		resp_group = {}
+		resp_group_err = {}
+		for line in Popen(cmd, shell=True, bufsize=102400, stdout=PIPE).stdout:
+			try:
+				# tag cost code
+				(tag, cost, code) = line.split()
+				if tag not in resp_group: 
+					resp_group[tag]=[]
+					resp_group_err[tag]=[]
+				try:
+					if 'string' == cost_type:
+						cost = float( cost.split(':')[-1][0:-1] ) * 1000
+					elif 'ms' == cost_type:
+						cost = int( cost )
+					else:
+						cost = float( cost ) * 1000
+				except ValueError as e:
+					cost = float( cost.split()[-1] ) * 1000
+				resp_group[tag].append(cost)
+				code = int( code.strip('\n') )
+				if code != 0:
+					resp_group_err[tag].append( [code, cost] )
+
+			except IndexError as e:
+				print 'IndexError:', e.message, 'line =',line.split()
+			except ValueError as e:
+				print 'ValueError:', e.message,  'line=[', line, ']'
+				print 'cost=',line.split()[1].strip('\n')
+
+		return resp_group, resp_group_err
+
 
 	@staticmethod
-	def load_npz_data(npz_file):
+	def save(npz_file, **kwds):
+		np.savez(npz_file, **kwds)
+
+	@staticmethod
+	def load(npz_file):
 		"""
 		load data from npz_file(.npz format file)
 		"""
@@ -139,43 +187,6 @@ class Helper(object):
 		data = np.load(npz_file)
 		log('file[%s] has %s' % (npz_file, str(data.files)) )
 		return data
-
-
-	def __parse_responses(self, file):
-		"""根据日志具体格式，获取对应的响应时间和服务状态
-		"""
-		day_responses = {}
-		day_responses_err = {}
-		# init hours
-		for i in range(24):
-			day_responses[i] = []
-			day_responses_err[i] = []
-
-		# int( line.split('\x02')[0][11:13] )
-		# int( line.split('\x02')[7] ) // 响应时间(ms)
-		# int( line.split('\x02')[8] ) //服务状态
-		with open(file) as f:
-			for line in f:
-				try:
-					hour = int( line.split('\\x02')[0][11:13] )
-					cost = int( line.split('\\x02')[7] )
-					day_responses[hour].append(cost)
-					code = int( line.split('\\x02')[8] )
-					if code != 0:
-						day_responses_err[hour].append( [code, cost] )
-					else:
-						day_responses_err[hour].append([0,0])
-				except IndexError as e:
-					print 'IndexError', e.message,  len(line.split('\\x02')), 'line =',line.split('\\x02')
-				except ValueError as e:
-					print 'ValueError', e.message,  'line=[', line, ']'
-				# break
-		resp = []
-		resp_err = []
-		for i in range(24):
-			resp.append(day_responses[i])
-			resp_err.append(len(day_responses_err[i])>0 and day_responses_err[i] or [0,0])
-		return resp, resp_err
 
 def main():
 	parser = argparse.ArgumentParser(prog='Numpy Helper', usage='%(prog)s [options]')
@@ -208,10 +219,14 @@ def main():
 
 	if args.cmd == 'parse':
 		log( 'parse for %s [%s]'% (args.ini, args.section) )
-		Helper.parse(args.ini, args.section, save=save)
+		helper = Helper(args.ini, args.section)
+		data = helper.parse()
+		print ", ".join(["%s=%d" % (k, len(v) ) for k, v in data.items()])
+
+		Helper.save(helper.npz_file, **data)
 	elif args.cmd == 'load':
 		print 'load from ', args.npz
-		data = Helper.load_npz_data(args.npz)
+		data = Helper.load(args.npz)
 
 		if args.verbose:
 			for f in data.files:
