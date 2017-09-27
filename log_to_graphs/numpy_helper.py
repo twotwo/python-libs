@@ -138,7 +138,7 @@ auth_resp_groupby_ch_cmd
 		return resp_time_group_by_hour, resp_err_group_by_hour
 
 	@staticmethod
-	def parse_response_groupbytag(cmd, cost_type):
+	def parse_response_groupbytag(cmd, cost_type, ignore_err=False):
 		"""命令返回结构: tag cost code
 按照tag把返回结果分组
 		"""
@@ -160,9 +160,12 @@ auth_resp_groupby_ch_cmd
 						cost = float( cost ) * 1000
 				except ValueError as e:
 					cost = float( cost.split()[-1] ) * 1000
-				resp_group[tag].append(cost)
+				
 				code = int( code.strip('\n') )
-				if code != 0:
+				if code == 0:
+					resp_group[tag].append(cost)
+				else:
+					if not ignore_err: resp_group[tag].append(cost)
 					resp_group_err[tag].append( [code, cost] )
 
 			except IndexError as e:
