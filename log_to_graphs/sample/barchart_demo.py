@@ -1,44 +1,42 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
-a bar plot with errorbars
+========
+Barchart
+========
 
-http://matplotlib.org/examples/api/barchart_demo.html
+A bar plot with errorbars and height labels on individual bars
+
+<a href="https://matplotlib.org/examples/api/barchart_demo.html">Source code</a>
 """
 import numpy as np
 import matplotlib.pyplot as plt
 
-N = 24
-
-labels = (u'0点', u'1点', u'2点', u'3点', u'4点', u'5点', u'6点', u'7点', u'8点', u'9点', u'10点', u'11点', u'12点',
-	u'13点', u'14点', u'15点', u'16点', u'17点', u'18点', u'19点', u'20点', u'21点', u'22点', u'23点'
-	)
-
-menMeans = (20, 35, 30, 35, 27, 20, 35, 30, 35, 27, 20, 35, 30, 35, 27, 20, 35, 30, 35, 27, 20, 35, 30, 35)
-menStd =  (13, 15, 20, 15, 17, 20, 35, 30, 35, 27, 20, 35, 30, 35, 27, 20, 35, 30, 35, 27, 20, 35, 30, 35)
+N = 5
+men_means = (20, 35, 30, 35, 27)
+men_std = (2, 3, 4, 1, 2)
 
 ind = np.arange(N)  # the x locations for the groups
 width = 0.35       # the width of the bars
 
-fig, ax = plt.subplots(figsize=(12, 5))
-rects1 = ax.bar(ind, menMeans, width, color='r', yerr=menStd)
+fig, ax = plt.subplots()
+rects1 = ax.bar(ind, men_means, width, color='r', yerr=men_std)
 
-womenMeans = (250, 302, 300, 200, 100, 250, 302, 300, 200, 100, 250, 302, 300, 200, 100, 250, 302, 300, 200, 100, 250, 302, 300, 200)
-womenStd = (3, 5, 2, 3, 3, 3, 5, 2, 3, 3, 3, 5, 2, 3, 3, 3, 5, 2, 3, 3, 3, 5, 2, 3)
-rects2 = ax.bar(ind + width, womenMeans, width, color='y', yerr=womenStd)
+women_means = (25, 32, 34, 20, 25)
+women_std = (3, 5, 2, 3, 3)
+rects2 = ax.bar(ind + width, women_means, width, color='y', yerr=women_std)
 
 # add some text for labels, title and axes ticks
-ax.set_ylabel(u'毫秒数')
-ax.set_title(u'服务响应时间')
-ax.set_xticks(ind + width)
-ax.set_xticklabels(labels)
+ax.set_ylabel('Scores')
+ax.set_title('Scores by group and gender')
+ax.set_xticks(ind + width / 2)
+ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
 
-# add handles' lables
-ax.legend((rects1[0], rects2[0]), (u'Means', u'Last10%'))
+ax.legend((rects1[0], rects2[0]), ('Men', 'Women'))
 
 
 def autolabel(rects):
-    # attach some text labels
+    """
+    Attach a text label above each bar displaying its height
+    """
     for rect in rects:
         height = rect.get_height()
         ax.text(rect.get_x() + rect.get_width()/2., 1.05*height,
@@ -48,5 +46,4 @@ def autolabel(rects):
 autolabel(rects1)
 autolabel(rects2)
 
-# plt.savefig('bar.png')
 plt.show()

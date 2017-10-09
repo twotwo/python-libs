@@ -32,10 +32,10 @@ auth_resp_groupby_ch_cmd
 		config.read(config_file)
 
 		timestamp = config.get(section, 'timestamp')
-		yesterday = ( date.today()-timedelta(1) ).strftime(timestamp)
+		self.yesterday = ( date.today()-timedelta(1) ).strftime(timestamp)
 
 		self.npz_file = config.get(section, 'npz_file')
-		log_file = config.get(section, 'log_file', 0, {'yesterday': yesterday})
+		log_file = config.get(section, 'log_file', 0, {'yesterday': self.yesterday})
 
 		self.cost_type = config.get(section, 'cost_type')
 		self.request_cmd = config.get(section, 'request_cmd', 0, {'log_file': log_file})
