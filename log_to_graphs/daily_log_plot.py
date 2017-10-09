@@ -57,16 +57,16 @@ def text(axes, xs, ys, values):
 		axes.text(x, 1.05*y, '%d' % int(value), fontsize=10, fontweight=800, bbox=dict(facecolor='green', alpha=0.8),
 			ha='right', va='baseline')
 
-def paint(helper, picturename, title, show=True):
+def paint(data, picturename, title, show=True):
 
 	for i in range(N):	# init x labels
 		labels.append( str(i)+':00' )
 
 	width = 0.35        # the width of the bars
 
-	day_requests = helper.day_requests
-	day_resp_time_by_hour = helper.day_resp_time_by_hour
-	resp_errs = helper.day_resp_err_by_hour
+	day_requests = data['day_requests']
+	day_resp_time_by_hour = data['day_resp_time_by_hour']
+	resp_errs = data['day_resp_err_by_hour']
 
 
 	##################################################
@@ -89,7 +89,7 @@ def paint(helper, picturename, title, show=True):
 	for a in np.array(day_requests).reshape(24, 60*60):
 		count_by_hours.append(np.sum(a))
 
-	axes = plt.subplot(3,1,1)
+	axes = fig.add_subplot(3,1,1)
 	bars1 = axes.bar(np.arange(24)+width, count_by_hours, width, label=u'All Requests', color='g')
 	autolabel(bars1, axes)
 
@@ -105,11 +105,11 @@ def paint(helper, picturename, title, show=True):
 
 
 	#####################################################
-	# subplot 2: plot throughput by helper.day_requests
+	# subplot 2: plot throughput by day_requests
 	#####################################################
-	(max_count, median_count, mean_count, min_count) = sample_by_group(helper.day_requests, 60)
+	(max_count, median_count, mean_count, min_count) = sample_by_group(day_requests, 60)
 
-	plt.subplot(3, 1, 2)
+	fig.add_subplot(3, 1, 2)
 	plt.plot(np.arange(group * 24), max_count, label=u'Max Requests', color='r')
 	plt.plot(np.arange(group * 24), median_count, label=u'Median Requests', color='g')
 	plt.plot(np.arange(group * 24), mean_count, label=u'Mean Requests', color='y')
@@ -129,7 +129,7 @@ def paint(helper, picturename, title, show=True):
 		# Sorted by Response Time
 		resps_sorted = [np.sort(resp) for resp in day_resp_time_by_hour]
 
-		axes = plt.subplot(3, 1, 3)
+		axes = fig.add_subplot(3, 1, 3)
 		bars1 = axes.bar(np.arange(24), [np.mean(resp[-1000:]) for resp in resps_sorted], width, label=u'Last 1000', color='g')
 		bars2 = axes.bar(np.arange(24)+width, [np.mean(resp[-100:]) for resp in resps_sorted], width, label=u'Last 100', color='b')
 		bars3 = axes.bar(np.arange(24)+width*2, [np.mean(resp[-10:]) for resp in resps_sorted], width, label=u'Last 10', color='r')
@@ -172,10 +172,7 @@ def main():
 	from numpy_helper import Helper
 	logging.basicConfig(filename='./l2g.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 
-	helper = Helper(args.npz)
-	helper.load_npz_data()
-
-	paint(helper, picturename=args.picturename, title=args.title, show=args.show)
+	paint(Helper.load(args.npz), picturename=args.picturename, title=args.title, show=args.show)
 
 if __name__ == '__main__':
 	'''
