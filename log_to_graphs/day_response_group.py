@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 
 from numpy_helper import Helper
 
+import sys
+
 def paint_horizantal_bar_chart(group_name, date_str, resp_group, resp_group_err):
 	"""Make a horizontal bar plot
 	"""
@@ -90,8 +92,11 @@ def test(date_str):
 	group_name = 'Channels'
 	paint_horizantal_bar_chart(group_name, date_str, resp_group, resp_group_err)
 
-def main():
-	helper = Helper('helper.ini', 'agent')
+def main(argv):
+	ini_file = 'helper.ini'
+	if len(argv) > 1: ini_file = argv[1]
+	print 'config file =', ini_file
+	helper = Helper(ini_file, 'agent')
 	(resp_group, resp_group_err) =Helper.parse_response_groupbytag(
 		helper.auth_resp_groupby_ch_cmd, 
 		'string',
@@ -103,4 +108,4 @@ if __name__ == '__main__':
 	# for date in ['2017-09-19', '2017-09-20', '2017-09-21', '2017-09-22', '2017-09-23', '2017-09-24', '2017-09-25', '2017-09-26']:
 	# # for date in ['2017-09-19']:
 	# 	test(date)
-	main()
+	main(sys.argv) # python day_response_group.py helper.ini
