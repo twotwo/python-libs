@@ -29,7 +29,7 @@ def paint_horizantal_bar_chart(group_name, date_str, resp_group, resp_group_err)
 	ax = fig.add_subplot(111)
 	# add some text for labels, title and axes ticks
 	ax.set_ylabel(group_name)
-	ax.set_title('Response Time by %s(%s)' % (group_name, date_str))
+	ax.set_title('Response Time group by %s(%s)' % (group_name, date_str))
 	ax.set_yticks(ind + height / 2)
 	ax.set_yticklabels(groups)
 
@@ -62,7 +62,7 @@ def paint_horizantal_bar_chart(group_name, date_str, resp_group, resp_group_err)
 
 	plt.legend( loc='best', fontsize='small' )
 
-	counts = [len(resp) for resp in resp_group.values()]
+	counts = ['all: %d\nerr: %d'%(len(resp),len(err)) for resp, err in zip(resp_group.values(), resp_group_err.values())]
 	# Set the right-hand Y-axis ticks and labels
 	ax2 = ax.twinx()
 	# set the tick locations
@@ -73,10 +73,12 @@ def paint_horizantal_bar_chart(group_name, date_str, resp_group, resp_group_err)
 	# set the tick labels
 	ax2.set_yticklabels(counts)
 	ax2.set_ylabel('All Response')
+	ax2.yaxis.grid(True, which="both", color='k', linestyle='-.', linewidth=0.7)
 
 	# plt.show()
 	date_str=''
 	plt.savefig('channel_auth_%s.png'%date_str, dpi = 300)
+	print 'save as channel_auth_%s.png'%date_str
 
 def test(date_str):
 	helper = Helper('helper.ini', 'agent')
