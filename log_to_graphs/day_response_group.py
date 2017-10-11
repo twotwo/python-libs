@@ -25,7 +25,7 @@ def paint_horizantal_bar_chart(group_name, date_str, resp_group, resp_group_err)
 	#开启网格
 	plt.grid()
 	# fig, ax = plt.subplots()
-	fig = plt.figure(figsize=(10, 8))
+	fig = plt.figure(figsize=(12, 12))
 	ax = fig.add_subplot(111)
 	# add some text for labels, title and axes ticks
 	ax.set_ylabel(group_name)
