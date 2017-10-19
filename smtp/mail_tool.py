@@ -6,6 +6,7 @@ mail_tool.py
 参考
 https://hg.python.org/cpython/file/2.7/Lib/smtplib.py
 https://docs.python.org/2/library/email-examples.html
+https://my.oschina.net/guol/blog/129913
 
 Copyright (c) 2016年 li3huo.com All rights reserved.
 """
@@ -48,25 +49,23 @@ class MailTool(object):
 	"""一个发邮件的工具类
 	"""
 
-	def __init__(self, host, port, user, password, ssl=False):
+	def __init__(self, host, port, timeout, user, password, ssl=False):
 		"""初始化客户端连接
 		"""
 
-		# #timeout=socket._GLOBAL_DEFAULT_TIMEOUT
-		# self.timeout = timeout
-
-		self.client = SMTP(host=host, port=port) 
+		# for python< 2.6
+		# timeout=socket._GLOBAL_DEFAULT_TIMEOUT
 
 		if ssl:
 			self.client.starttls()
 
 		try:
-			self.client = SMTP(host, port)
-			logging.info('smtp login ...')
-			print self.client.ehlo()
-			respons = self.client.login(user, password)
-			print respons
-			logging.info(respons)
+			self.client = SMTP(host=host, port=port, timeout=timeout)
+			logging.info('SMTP init: host=%s, port=%s, timeout=%s' % (host, port, timeout))
+			# print self.client.ehlo()
+			response = self.client.login(user, password)
+			print response
+			logging.info('SMTP login: '+str(response) )
 			# 设置邮件服务的发送者为发送账号
 			self.sender = user
 		except SMTPConnectError as e:
@@ -82,7 +81,7 @@ class MailTool(object):
 		"""释放连接
 		"""
 		self.client.close()
-		logging.info('smtp close ...')
+		logging.info('SMTP close')
 		# self.client.quit()
 
 	@staticmethod
@@ -97,6 +96,7 @@ class MailTool(object):
 		outer['reply-to'] = reply_to
 		outer['to'] = ','.join(rcpt_tos).strip()
 
+		logging.info('Create Msg...')
 		if len(content.strip()) > 0:
 			cnt = MIMEText(content, 'html', 'utf8')
 			print 'content:', content
@@ -180,6 +180,7 @@ class MailTool(object):
 
 	def send(self, msg):
 
+		logging.info('Sending Msg...')
 		try:
 			self.client.sendmail(msg['from'], msg['to'].split(','), msg.as_string())
 			logging.info('mail({0}) from[{1}] to[{2}] sent'.format(msg['subject'], msg['from'] , msg['to']))
@@ -222,14 +223,14 @@ def init_smtp():
 		print 'now base dir created.'
 	log_file = os.path.join(base_dir, 'mail.log')
 	logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s %(message)s')
-	logging.info('init mail tool...')
 
 	host = config.get('smtp', 'host')
 	port = config.get('smtp', 'port')
+	timeout = config.getfloat('smtp', 'timeout')
 	user = config.get('smtp', 'user')
 	password = config.get('smtp', 'password')
 
-	return MailTool(host, port, user, password), base_dir
+	return MailTool(host, port, timeout, user, password), base_dir
 
 
 def load_msg(section, conf_file='mail.ini'):
@@ -275,14 +276,21 @@ def main(args):
 	msg = load_msg(section)
 	MailTool.show_msg(msg)
 
-	try:
+	status = False
+	count = 0
+	while not status:
+		count = count +1
+		try:
 
-		tool.send(msg)
+			status = tool.send(msg)
 
-	except Exception as e:
-		logging.error('Exception({0}): on sending {1}'.format(e.message, msg['subject']))
-		print 'Exception({0}): on sending {1}'.format(e.message, msg['subject'])
+		except Exception as e:
+			logging.error('Exception({0}): on sending {1}'.format(e.message, msg['subject']))
+			print 'Exception({0}): on sending {1}'.format(e.message, msg['subject'])
 
+		if count >= 3: break
+
+	
 	# release smtp connection
 	tool.close()
 
