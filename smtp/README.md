@@ -34,7 +34,7 @@ files = ~/app/python/matplotlib/chart.png
 # add your own section
 ```
 
-### 2. Install Packages
+### 2. Install Packages(only for Python 3.x)
 
 ```bash
 virtualenv env
@@ -46,4 +46,12 @@ pip install ConfigParser
 
 ```bash
 python mail_tool.py test #[your section name]
+```
+
+### 4. Send Everyday
+
+```bash
+crontab -e
+# excute on 2:20 am
+20 2 * * * python /data0/monitor/daily_logs/mail_tool.py platform
 ```
