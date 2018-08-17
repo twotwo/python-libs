@@ -230,23 +230,12 @@ def init_smtp():
 	user = config.get('smtp', 'user')
 	password = config.get('smtp', 'password')
 
-	return MailTool(host, port, timeout, user, password), base_dir
+	return MailTool(host, port, timeout, user, password), base_dir, config
 
 
-def load_msg(section, conf_file='mail.ini'):
+def load_msg(section, config):
 	"""加载指定配置对应的信息，并生成待发送邮件
-	"""	
-	# formataddr(realname, email_address)
-	# ffrom = formataddr((str(Header(u'mail tool', 'utf-8')), "liyan@company.com"))
-	# rcpt_tos = ['liyan@company.com', 'liumingfei@company.com']
-	# reply_to = 'liyan@company.com'
-	# subject = u'mail tool test'
-	# content = codecs.open(u'/opt/local/ide/git_storage/github/tools-python/smtp/mail_tool.py', encoding='utf-8').read()
-	# files = [u'/opt/local/ide/git_storage/github/tools-python/smtp/mail_tool.py', ]
-	# files = None
-	config = ConfigParser.RawConfigParser(allow_no_value=True)
-	config.read(conf_file)
-
+	"""
 	ffrom = formataddr((str(Header(u'业务支撑中心技术组', 'utf-8')), config.get(section, 'from')))
 	# ffrom = config.get(section, 'from')
 	rcpt_tos = config.get(section, 'to').split(',')
@@ -269,11 +258,11 @@ def main(args):
 		section = args[1]
 
 	# init smtp tool
-	tool, base_dir = init_smtp()
+	tool, base_dir, config = init_smtp()
 
 	# send one mail
 	print('section = '+section)
-	msg = load_msg(section)
+	msg = load_msg(section, config)
 	MailTool.show_msg(msg)
 
 	status = False
@@ -296,4 +285,3 @@ def main(args):
 
 if __name__ == '__main__':
 	main(sys.argv)
-
