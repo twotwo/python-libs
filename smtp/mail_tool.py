@@ -64,7 +64,7 @@ class MailTool(object):
 			logging.info('SMTP init: host=%s, port=%s, timeout=%s' % (host, port, timeout))
 			# print self.client.ehlo()
 			response = self.client.login(user, password)
-			print response
+			print(response)
 			logging.info('SMTP login: '+str(response) )
 			# 设置邮件服务的发送者为发送账号
 			self.sender = user
@@ -72,7 +72,7 @@ class MailTool(object):
 			logging.error('SMTPConnectError({0}): on {1}:{2}'.format(e.message, host, port))
 		except SMTPAuthenticationError as e:
 			logging.error('SMTPAuthenticationError({0}): on {1}:{2}'.format(e.message, user, password))
-			print e
+			print(e)
 			exit(-1)
 
 		self.client.set_debuglevel(0) # 1: debug=True
@@ -99,7 +99,7 @@ class MailTool(object):
 		logging.info('Create Msg...')
 		if len(content.strip()) > 0:
 			cnt = MIMEText(content, 'html', 'utf8')
-			print 'content:', content
+			print('content:', content)
 			outer.attach(cnt)
 
 		if files != None:
@@ -146,7 +146,7 @@ class MailTool(object):
 	def show_msg(msg):
 		"""show MIMEMultipart
 		"""
-		print 'mail({0}) from[{1}] to[{2}]:'.format(msg['subject'], msg['from'] , msg['to'])
+		print('mail({0}) from[{1}] to[{2}]:'.format(msg['subject'], msg['from'] , msg['to']))
 
 		counter = 1
 		for part in msg.walk():
@@ -166,7 +166,7 @@ class MailTool(object):
 			# fp = open(os.path.join(opts.directory, filename), 'wb')
 			# fp.write(part.get_payload(decode=True))
 			# fp.close()
-			print 'mail part: {0}'.format(filename)
+			print('mail part: {0}'.format(filename))
 
 
 	def _message_id(self, reply):
@@ -220,7 +220,7 @@ def init_smtp():
 		base_dir = base_dir.decode('utf-8')
 	if not os.access(base_dir,os.F_OK):
 		os.makedirs(base_dir)
-		print 'now base dir created.'
+		print('now base dir created: '+base_dir)
 	log_file = os.path.join(base_dir, 'mail.log')
 	logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s %(message)s')
 
@@ -264,7 +264,7 @@ def main(args):
 	"""
 	python mail_tool.py test
 	"""
-	section = 'GameSDK V5'
+	section = 'test'
 	if len(args) > 1:
 		section = args[1]
 
@@ -286,7 +286,7 @@ def main(args):
 
 		except Exception as e:
 			logging.error('Exception({0}): on sending {1}'.format(e.message, msg['subject']))
-			print 'Exception({0}): on sending {1}'.format(e.message, msg['subject'])
+			print('Exception({0}): on sending {1}'.format(e.message, msg['subject']))
 
 		if count >= 3: break
 
