@@ -214,7 +214,7 @@ def init_smtp():
 	"""Load basic and smtp config from mail.ini
 	"""
 	config = ConfigParser.RawConfigParser(allow_no_value=True)
-	config.read('mail.ini')
+	config.read(os.path.join(sys.path[0],'mail.ini'))
 	base_dir = config.get('basic', 'base_dir')
 	if sys.platform == 'win32': #decode to unicode
 		base_dir = base_dir.decode('utf-8')
