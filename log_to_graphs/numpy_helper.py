@@ -40,12 +40,13 @@ auth_resp_groupby_ch_cmd
 		self.cost_type = config.get(section, 'cost_type')
 		self.request_cmd = config.get(section, 'request_cmd', 0, {'log_file': log_file})
 		self.resp_hour_cmd = config.get(section, 'resp_hour_cmd', 0, {'log_file': log_file})
-		self.auth_resp_groupby_ch_cmd = config.get(section, 'auth_resp_groupby_ch_cmd', 0, {'log_file': log_file})
 
 		log( 'npz_file = %s, log_file = %s'% (self.npz_file, log_file) )
 		log( 'request_cmd = %s'% self.request_cmd )
 		log( 'resp_hour_cmd = %s'% self.resp_hour_cmd )
-		log( 'auth_resp_groupby_ch_cmd = %s'% self.auth_resp_groupby_ch_cmd )
+		if config.has_option(section, 'auth_resp_groupby_ch_cmd'):
+			self.auth_resp_groupby_ch_cmd = config.get(section, 'auth_resp_groupby_ch_cmd', 0, {'log_file': log_file})
+			log( 'auth_resp_groupby_ch_cmd = %s'% self.auth_resp_groupby_ch_cmd )
 
 	def parse(self, save=False):
 		"""根据加载的配置信息，按指定方式读取日志数据

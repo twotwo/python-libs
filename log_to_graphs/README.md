@@ -1,6 +1,8 @@
 # 日志转图工具
 
-## 依赖
+## Environment
+
+[Installing Python 2.7 on Centos 6.5](../python27_on_centos65.md)
 
 `pip install matplotlib numpy cairocffi`
  * matplotlib: http://wiki.li3huo.com/matplotlib
@@ -104,14 +106,70 @@
 
 ### Others: ../smtp/mail_tool.py 把报告以邮件形式进行发送
 
+
+## 生成日报表的过程(./gen-report.sh)
+
+### 1. 日志汇总&合并
+
+```bash
 #!/bin/sh
-today=`date +%Y-%m-%d`
-for ip in 10.75.2.15 10.75.0.16; do
-  rsync -avzp -e "ssh -p 2188" feiliu-user@${ip}:/data/www/gas.feiliu.com/logs/activate/all/${today}.log ${today}_${ip}.log
+
+yesterday=`date -d last-day +%Y%m%d`
+logfile="/var/log/platform/access.log-${yesterday}"
+store_dir=/data0/monitor/daily_logs/platform_log
+
+# load logs to ${store_dir}
+for ip in 10.163.61.176 10.163.57.246; do
+  rsync -avzp -e "ssh -p 22" ${ip}:${logfile} ${store_dir}/${yesterday}_${ip}.log
 done
-if [ -n "$1" ]; then
-  sort -m ${today}_*.log |grep $1
+
+# merge logs to ${store_dir}/${yesterday}.log
+sort -m ${store_dir}/${yesterday}_*.log -o ${store_dir}/${yesterday}.log
+
+merge_filter=$1
+if [ -n "${merge_filter}" ]; then
+	sort -m ${store_dir}/${yesterday}_*.log |grep ${merge_filter} > ${store_dir}/${yesterday}.log
 else
-  sort -m ${today}_*.log
+  sort -m ${store_dir}/${yesterday}_*.log -o ${store_dir}/${yesterday}.log
 fi
 
+```
+
+### 2. log to data(numpy_helper.py)
+
+```bash
+# 准备python脚本执行环境
+pip install virtualenv
+virtualenv env
+source env/bin/activate
+# 安装需要的类库
+pip install matplotlib numpy cairocffi
+```
+
+```bash
+src_dir=/data0/monitor/daily_logs
+ini_file=/data0/monitor/daily_logs/helper.ini
+pic_file="/data0/monitor/daily_logs/report/daily-report-${yesterday}.png";
+PATH=${src_dir}/env/bin:$PATH
+python ${src_dir}/numpy_helper.py -c parse -i ${ini_file} -s platform
+```
+
+### 3. data to graphs(daily_log_plot.py)
+
+```bash
+python ${src_dir}/daily_log_plot.py -n /tmp/pay_v4.npz -p ${pic_file} -t "Web Platform Daily Report(${yesterday})" --not-show
+cp ${pic_file} ${src_dir}/platform_daily_report.png
+```
+
+
+### 4. add to crontab
+
+```bash
+crontab -e
+# generate report on 2:00 am
+0 2 * * * sh /data0/monitor/daily_logs/gen-report.sh
+#30 11 * * * sh /data0/monitor/daily_logs/gen-report.sh
+# send mail on 2:20 am
+20 2 * * * python /data0/monitor/daily_logs/mail_tool.py platform
+#05 17 * * * python /data0/monitor/daily_logs/mail_tool.py platform
+```
