@@ -157,7 +157,8 @@ python ${src_dir}/numpy_helper.py -c parse -i ${ini_file} -s platform
 ### 3. data to graphs(daily_log_plot.py)
 
 ```bash
-python ${src_dir}/daily_log_plot.py -n /tmp/pay_v4.npz -p ${pic_file} -t "Web Platform Daily Report(${yesterday})" --not-show
+python ${src_dir}/daily_log_plot.py -n ${src_dir}/platform.npz -p ${pic_file} -tt
+ "Web Platform Daily Report(${yesterday})" --not-show
 cp ${pic_file} ${src_dir}/platform_daily_report.png
 ```
 

@@ -34,7 +34,7 @@ try:
 except ImportError:
 	import json as simplejson
 
-import ConfigParser, logging
+import ConfigParser, logging, argparse
 import codecs, sys
 
 from string import Template
@@ -210,11 +210,16 @@ class MailTool(object):
 		# 	return False
 
 
-def init_smtp():
+def init_smtp(ini_file):
 	"""Load basic and smtp config from mail.ini
 	"""
 	config = ConfigParser.RawConfigParser(allow_no_value=True)
-	config.read(os.path.join(sys.path[0],'mail.ini'))
+	print ('read ini file', ini_file)
+	if not os.path.exists(ini_file):
+		# use ini in python dir
+		ini_file=os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])),ini_file)
+		print('try to use another place', ini_file)
+	config.read(ini_file)
 	base_dir = config.get('basic', 'base_dir')
 	if sys.platform == 'win32': #decode to unicode
 		base_dir = base_dir.decode('utf-8')
@@ -249,20 +254,22 @@ def load_msg(section, config):
 	return MailTool.msg(ffrom, rcpt_tos, reply_to, subject, content, files)
 
 
-def main(args):
-	"""
-	python mail_tool.py test
-	"""
-	section = 'test'
-	if len(args) > 1:
-		section = args[1]
+def main():
+	parser = argparse.ArgumentParser(prog='Mail Tool', usage='%(prog)s [options]')
+
+	parser.add_argument('-i', dest='ini', type=str, default='mail.ini',
+											help='Mail Config file')
+	parser.add_argument('-s', dest='section', type=str, default='test',
+											help='section in .ini file')
+	args = parser.parse_args()
+
 
 	# init smtp tool
-	tool, base_dir, config = init_smtp()
+	tool, base_dir, config = init_smtp(args.ini)
 
 	# send one mail
-	print('section = '+section)
-	msg = load_msg(section, config)
+	print('section = '+args.section)
+	msg = load_msg(args.section, config)
 	MailTool.show_msg(msg)
 
 	status = False
@@ -284,4 +291,7 @@ def main(args):
 	tool.close()
 
 if __name__ == '__main__':
-	main(sys.argv)
+	"""
+	python mail_tool.py -i /tmp/mail.ini -s test
+	"""
+	main()

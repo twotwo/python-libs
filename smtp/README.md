@@ -53,5 +53,5 @@ python mail_tool.py test #[your section name]
 ```bash
 crontab -e
 # excute on 2:20 am
-20 2 * * * python /data0/monitor/daily_logs/mail_tool.py platform
+20 2 * * * python /data0/monitor/daily_logs/mail_tool.py -i /data0/monitor/daily_logs/mail.ini -s platform
 ```
