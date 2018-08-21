@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from numpy_helper import Helper
 
-import sys
+import sys, os
 
 def paint_horizantal_bar_chart(group_name, date_str, resp_group, resp_group_err):
 	"""Make a horizontal bar plot
@@ -96,9 +96,16 @@ def test(date_str):
 
 def main(argv):
 	ini_file = 'helper.ini'
+	section = 'agent'
 	if len(argv) > 1: ini_file = argv[1]
+	if len(argv) > 2: section = argv[2]
+		
 	print 'config file =', ini_file
-	helper = Helper(ini_file, 'agent')
+	if not os.path.exists(ini_file):
+		# use ini in python dir
+		ini_file=os.path.join(os.path.abspath(os.path.dirname(argv[0])),ini_file)
+		print('try to use another place', ini_file)
+	helper = Helper(ini_file, section)
 	(resp_group, resp_group_err) =Helper.parse_response_groupbytag(
 		helper.auth_resp_groupby_ch_cmd, 
 		'string',
@@ -110,4 +117,4 @@ if __name__ == '__main__':
 	# for date in ['2017-09-19', '2017-09-20', '2017-09-21', '2017-09-22', '2017-09-23', '2017-09-24', '2017-09-25', '2017-09-26']:
 	# # for date in ['2017-09-19']:
 	# 	test(date)
-	main(sys.argv) # python day_response_group.py helper.ini
+	main(sys.argv) # python day_response_group.py helper.ini platform

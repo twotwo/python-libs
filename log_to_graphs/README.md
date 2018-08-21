@@ -160,6 +160,7 @@ python ${src_dir}/numpy_helper.py -c parse -i ${ini_file} -s platform
 python ${src_dir}/daily_log_plot.py -n ${src_dir}/platform.npz -p ${pic_file} -tt
  "Web Platform Daily Report(${yesterday})" --not-show
 cp ${pic_file} ${src_dir}/platform_daily_report.png
+python ${src_dir}/day_response_group.py helper.ini platform
 ```
 
 
