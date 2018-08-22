@@ -108,7 +108,7 @@ def main(argv):
 	helper = Helper(ini_file, section)
 	(resp_group, resp_group_err) =Helper.parse_response_groupbytag(
 		helper.auth_resp_groupby_ch_cmd, 
-		'string',
+		helper.cost_type,
 		ignore_err=False)
 
 	paint_horizantal_bar_chart('Channels', helper.yesterday, resp_group, resp_group_err)
