@@ -175,3 +175,5 @@ crontab -e
 20 2 * * * python /data0/monitor/daily_logs/mail_tool.py platform
 #05 17 * * * python /data0/monitor/daily_logs/mail_tool.py platform
 ```
+
+debug crontab: ` >> ${src_dir}/debug.log 2>&1`
