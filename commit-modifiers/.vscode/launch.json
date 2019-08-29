@@ -1,0 +1,44 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${fileDirname}",
+            "console": "integratedTerminal",
+            "envFile": "${fileDirname}/.env"
+        },
+        {
+            "name": "main(export)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal", //启用外部终端
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "-p",
+                "/opt/local/ide/workspaces/w2019/others/git-modifer",
+                "--export"
+            ]
+        },
+        {
+            "name": "main(modify)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal", //启用外部终端
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "-p",
+                "/opt/local/ide/workspaces/w2019/others/git-modifer",
+                "--modify"
+            ]
+        }
+    ]
+}
