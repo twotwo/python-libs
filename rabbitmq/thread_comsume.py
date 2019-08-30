@@ -4,6 +4,7 @@
 # Consumer inside Thread
 #
 ############################################################
+from rabbitmq import MQProducer, MQConsumer
 import os
 import time
 import pika
@@ -14,17 +15,10 @@ import multiprocessing
 multiprocessing.set_start_method('spawn', True)
 
 
-def get_connection():
-    logger.warning(f"connet to {os.getenv('RABBITMQ_HOST', 'dev.gpu')}")
-    return pika.BlockingConnection(pika.ConnectionParameters(os.getenv(
-        'RABBITMQ_HOST', 'dev.gpu'), credentials=pika.PlainCredentials('guest', os.getenv('RABBITMQ_PASS', 'guest'))))
-
-
-def emit_log(channel, message):
+def emit_log(mq_producer: MQProducer, message: str):
     try:
         logger.debug("sending ...")
-        # channel.basic_publish(exchange='', routing_key='hello', body=message)
-        channel.basic_publish(
+        mq_producer.publish(
             exchange='logs', routing_key='logs.test', body=message)
 
         logger.info("[x] Sent '%s'" % message)
@@ -32,57 +26,51 @@ def emit_log(channel, message):
         raise ex
 
 
-def receive_logs(connection):
-    logger.debug("ENTERED")
-    # connection = pika.BlockingConnection(
-    #     pika.ConnectionParameters(host='dev.gpu'))
-    connection = get_connection()
-    logger.debug("1")
-    channel = connection.channel()
-    logger.debug("2")
-    channel.exchange_declare(exchange='logs', exchange_type='topic')
-    logger.debug("3")
-    result = channel.queue_declare(exclusive=True)
-    logger.debug("4")
-    queue_name = result.method.queue
-    logger.debug("5")
+class SubClass(object):
+    def __init__(self, conf: dict):
+        self.amqp_url = conf.get('AMQP_URL')
+        self.exchange = conf.get('EXCHANGE')
+        self.routing_key = conf.get('ROUTING_KEY')
+        self.mq_consumer = MQConsumer(self.amqp_url)
+        # self.mq_consumer.open()
 
-    def callback_rabbit(ch, method, properties, body):
+    def run(self):
+        self.mq_consumer.open()
+        queue_name = f"test-{self.exchange}"
+        self.mq_consumer.bind(self.exchange, self.routing_key, queue_name)
+        self.mq_consumer.basic_consume(queue_name, self.callback_rabbit)
+        logger.warning(
+            f"binding from {self.exchange}, routing_key={self.routing_key}, queue={queue_name}")
+        self.mq_consumer.start_consuming()
+
+    @classmethod
+    def callback_rabbit(cls, ch, method, properties, body):
         logger.debug(f"RICEVUTO MSG: RKEY: {method.routing_key}, {body}")
-
-    logger.debug("6")
-    channel.queue_bind(exchange='logs', queue=queue_name,
-                       routing_key='#')
-    logger.debug("7")
-    # channel.basic_consume(callback_rabbit, queue=queue_name, no_ack=True)
-    # logger.debug("8")
-    # channel.start_consuming()
-    try:
-        for method, properties, body in channel.consume(queue=queue_name, no_ack=True):
-            callback_rabbit(channel, method, properties, body)
-    except AMQPConnectionError as er:
-        logger.error(f'channel.consume failed, er: {er}')
-    except KeyboardInterrupt:
-        logger.info('exit ...')
 
 
 def start():
-    connection = get_connection()
-    connection = None
-    t_msg = multiprocessing.Process(target=receive_logs, args=(connection, ))
-    t_msg.start()
-    t_msg.join(0)
+    """
+    a demo for use mq comsume in thread, give all params to subclass
+    """
+    conf = {
+        'AMQP_URL': os.getenv('AMQP_URL', 'amqp://guest:guest@dev.gpu:5672'),
+        'EXCHANGE': 'test',
+        'ROUTING_KEY': '#'
+    }
+    subclass = SubClass(conf)
+    process = multiprocessing.Process(target=subclass.run, args=())
+    process.start()
+    process.join(0)
 
 
 if __name__ == '__main__':
     start()
-    time.sleep(1)
 
-    connection = get_connection()
-    channel = connection.channel()
-
-    logger.debug("create exchange ...")
-    channel.exchange_declare(exchange='logs', exchange_type='topic')
+    mq_producer = MQProducer(
+        os.getenv('AMQP_URL', 'amqp://guest:guest@dev.gpu:5672'))
+    mq_producer.open()
     logger.warning('begin send')
     for i in range(10):
-        emit_log(channel, f'[{i}] hello')
+        emit_log(mq_producer, f'[{i}] hello')
+
+    mq_producer.close()
