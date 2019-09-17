@@ -29,3 +29,5 @@ Rewrite c7884648a86d359f5daac98965b18ccdca6f6090 (4/6) (1 seconds passed, remain
 Ref 'refs/heads/master' was rewritten
 ...
 ```
+
+`python main.py -p . -m email-to-match -e email-change-to -n name-change-to --verbose`

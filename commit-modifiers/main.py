@@ -25,13 +25,18 @@ class GitModifier(object):
 
     @staticmethod
     def format(obj):
+        """
+        refer to https://git-scm.com/docs/git-commit-tree#_commit_information
+        """
         template = """
         if test "$GIT_COMMIT" = "{commit_id}"
         then
-            GIT_AUTHOR_DATE="{date}"
-            GIT_COMMITTER_DATE="{date}"
             GIT_AUTHOR_NAME="{user}"
             GIT_AUTHOR_EMAIL="{email}"
+            GIT_AUTHOR_DATE="{date}"
+            GIT_COMMITTER_NAME="{user}"
+            GIT_COMMITTER_EMAIL="{email}"
+            GIT_COMMITTER_DATE="{date}"
         fi
         """
 
@@ -55,9 +60,10 @@ class GitModifier(object):
     def execute(cmd: str) -> str:
         """Excuete a shell command, get result
         """
-        with subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True) as proc:
-            lines = proc.stdout.readlines()
-            return '\n'.join([line.decode("utf-8").strip() for line in lines])
+        subprocess.Popen(cmd, shell=True)
+        # with subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True) as proc:
+        #     lines = proc.stdout.readlines()
+        #     return '\n'.join([line.decode("utf-8").strip() for line in lines])
 
 
 def chunks(l: list, n: int):
@@ -75,8 +81,11 @@ if __name__ == '__main__':
     parser.add_argument('--export', dest='export', action='store_true')
     parser.add_argument('--modify', dest='modify', action='store_true')
     parser.add_argument('--verbose', dest='verbose', action='store_true')
-    parser.add_argument('-r', dest='range', type=int, default=5)
+    parser.add_argument('-r', dest='range', type=int, default=10)
     parser.add_argument('-f', dest='file', type=str, default="commits.json")
+    parser.add_argument('-m', dest='match', type=str, default=None, help="matching email address to change")
+    parser.add_argument('-e', dest='email', type=str, default=None, help="change matching email to this email")
+    parser.add_argument('-n', dest='name', type=str, default=None, help="change matching email to this name")
     args = parser.parse_args()
     # event_logger.warning(f'args={args}')
     if(args.export):
@@ -94,8 +103,9 @@ if __name__ == '__main__':
                    'message': str(log.message.strip())}
             # emit_logger.info(f'{obj}')
             f.write(json.dumps(obj)+'\n')
-            emit_logger.opt(ansi=True).debug(
-                f'<level>{log.hexsha}</level>\t<cyan>{log.authored_datetime}</cyan>\t<blue>{committer.email}</blue>\t<green>{log.message.strip()}</green>')
+            if args.verbose:
+                emit_logger.opt(ansi=True).debug(
+                    f'<level>{log.hexsha}</level>\t<cyan>{log.authored_datetime}</cyan>\t<blue>{committer.email}</blue>\t<green>{log.message.strip()}</green>')
         f.close()
         event_logger.opt(ansi=True).info(f'write to {args.file}')
     if(args.modify):
@@ -110,4 +120,22 @@ if __name__ == '__main__':
         for chunk in chunks(envs, args.range):
             emit_logger.opt(ansi=True).debug(
                 GitModifier.filter_branch(args.path, f"'{''.join(chunk)}' -- --all",args.verbose))
+        emit_logger.info('finished.')
+    if(args.match):
+        template = """git -C . filter-branch -f --env-filter '
+    if test "$GIT_COMMITTER_EMAIL" = "{match_email}"
+    then
+        GIT_AUTHOR_NAME="{name}"
+        GIT_AUTHOR_EMAIL="{email}"
+        GIT_COMMITTER_NAME="{name}"
+        GIT_COMMITTER_EMAIL="{email}"
+    fi
+    ' -- --all
+        """
+        command = template.format(match_email=args.match,
+                               name=args.name,
+                               email=args.email)
+        if args.verbose:
+            event_logger.info(f"executing...\n{command}")
+        GitModifier.execute(command)
         emit_logger.info('finished.')
