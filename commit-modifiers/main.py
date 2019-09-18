@@ -46,7 +46,7 @@ class GitModifier(object):
                                email=obj.get('author').get('email'))
 
     @staticmethod
-    def filter_branch(path, msg, verbose=False):
+    def filter_branch(path: str, msg: str, verbose=False):
         """
         https://git-scm.com/docs/git-filter-branch
 
@@ -60,7 +60,8 @@ class GitModifier(object):
     def execute(cmd: str) -> str:
         """Excuete a shell command, get result
         """
-        subprocess.Popen(cmd, shell=True)
+        subprocess.run(cmd, shell=True, check=True)
+        return ''
         # with subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True) as proc:
         #     lines = proc.stdout.readlines()
         #     return '\n'.join([line.decode("utf-8").strip() for line in lines])
@@ -75,17 +76,21 @@ def chunks(l: list, n: int):
     for i in range(0, len(l), n):
         yield l[i:i + n]
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Console2RabbitMQ')
     parser.add_argument('-p', dest='path', type=str, default="/var/lib/repo")
     parser.add_argument('--export', dest='export', action='store_true')
     parser.add_argument('--modify', dest='modify', action='store_true')
     parser.add_argument('--verbose', dest='verbose', action='store_true')
-    parser.add_argument('-r', dest='range', type=int, default=10)
+    parser.add_argument('-r', dest='range', type=int, default=20)
     parser.add_argument('-f', dest='file', type=str, default="commits.json")
-    parser.add_argument('-m', dest='match', type=str, default=None, help="matching email address to change")
-    parser.add_argument('-e', dest='email', type=str, default=None, help="change matching email to this email")
-    parser.add_argument('-n', dest='name', type=str, default=None, help="change matching email to this name")
+    parser.add_argument('-m', dest='match', type=str,
+                        default=None, help="matching email address to change")
+    parser.add_argument('-e', dest='email', type=str, default=None,
+                        help="change matching email to this email")
+    parser.add_argument('-n', dest='name', type=str, default=None,
+                        help="change matching email to this name")
     args = parser.parse_args()
     # event_logger.warning(f'args={args}')
     if(args.export):
@@ -110,19 +115,21 @@ if __name__ == '__main__':
         event_logger.opt(ansi=True).info(f'write to {args.file}')
     if(args.modify):
         envs = []
+        event_logger.opt(ansi=True).info(f"read config [{args.file}]...")
         with open(args.file) as f:
             for line in f:
                 obj = json.loads(line)
-                event_logger.opt(ansi=True).info(
-                    f"<level>{obj.get('id')}</level>\t<cyan>{obj.get('date')}</cyan>\t<blue>{obj.get('author').get('email')}</blue>\t<green>{obj.get('message')}</green>")
+                if args.verbose:
+                    event_logger.opt(ansi=True).info(
+                        f"<level>{obj.get('id')}</level>\t<cyan>{obj.get('date')}</cyan>\t<blue>{obj.get('author').get('email')}</blue>\t<green>{obj.get('message')}</green>")
                 envs.append(GitModifier.format(obj))
-        
+
+        event_logger.opt(ansi=True).info("begin filter-branch ...")
         for chunk in chunks(envs, args.range):
             emit_logger.opt(ansi=True).debug(
-                GitModifier.filter_branch(args.path, f"'{''.join(chunk)}' -- --all",args.verbose))
-        emit_logger.info('finished.')
+                GitModifier.filter_branch(args.path, f"'{''.join(chunk)}' -- --all", args.verbose))
     if(args.match):
-        template = """git -C . filter-branch -f --env-filter '
+        template = """git -C {path} filter-branch -f --env-filter '
     if test "$GIT_COMMITTER_EMAIL" = "{match_email}"
     then
         GIT_AUTHOR_NAME="{name}"
@@ -132,10 +139,11 @@ if __name__ == '__main__':
     fi
     ' -- --all
         """
-        command = template.format(match_email=args.match,
-                               name=args.name,
-                               email=args.email)
+        command = template.format(
+            path=args.path,
+            match_email=args.match,
+            name=args.name,
+            email=args.email)
         if args.verbose:
             event_logger.info(f"executing...\n{command}")
         GitModifier.execute(command)
-        emit_logger.info('finished.')
