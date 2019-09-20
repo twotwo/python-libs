@@ -1,21 +1,25 @@
 # README
 
-## Reference 
+## Reference for development
 
 - [GitPython](https://github.com/gitpython-developers/GitPython)/[Documentation](https://gitpython.readthedocs.io/en/stable/) // only for read
 - [git-filter-branch](https://git-scm.com/docs/git-filter-branch) // modify by `git filter-branch`
 - [commit information](https://git-scm.com/docs/git-commit-tree#_commit_information) //modify info in `git filter-branch`
+- build images: `docker build --network=host -t git-filter-branch .`
 
 ## Usage
 
 ### Depandancy
 Mac/Unix/Linux with Docker installed
 
-build images: `docker build --network=host -t git-filter-branch .`
+download [modifier.sh](./modifier.sh) &
+
+`chmod +x modifier.sh`
 
 ### 导出 commits
 
-`verbose ./modifier.sh export {git-repo-path}` 或者
+`./modifier.sh export {git-repo-path}` 或者
+
 `ops=--verbose ./modifier.sh export {git-repo-path}` 用来显示执行过程详情
 
 ```bash
@@ -29,6 +33,7 @@ export commit log as ./commits.json file ...
 ### 根据修订好的提交记录更新 commits
 
 `./modifier.sh modify {git-repo-path} {commit-json-file}`  或者
+
 `ops="--verbose -r 100" ./modifier.sh modify {git-repo-path} {commit-json-file}` 用来显示执行过程详情，指定每次更新的行数(默认20条)
 
 
