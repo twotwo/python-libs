@@ -42,6 +42,9 @@ class RabbitMQ(object):
         finally:
             self.is_open = False
 
+    def __repr__(self):
+        return self.amqp_url
+
 
 class MQProducer(RabbitMQ):
 
@@ -58,16 +61,19 @@ class MQProducer(RabbitMQ):
 
 class MQConsumer(RabbitMQ):
 
-    def open(self):
+    def open(self, prefetch: int = 200):
+        """
+        :param prefetch: prefetch count of message
+        """
         super(MQConsumer, self).open()
-        self.channel.basic_qos(prefetch_count=1)
+        self.channel.basic_qos(prefetch_count=prefetch)
 
     def consume(self, queue: str):
         for method_frame, properties, body in self.channel.consume(queue):
             return method_frame, properties, body.decode('utf-8')
 
     def basic_consume(self, queue: str, on_message_callback: typing.Callable):
-        self.channel.basic_consume(on_message_callback, queue=queue)
+        self.channel.basic_consume(queue, on_message_callback)
 
     def start_consuming(self):
         self.channel.start_consuming()

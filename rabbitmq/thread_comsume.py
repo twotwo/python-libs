@@ -35,13 +35,18 @@ class SubClass(object):
         # self.mq_consumer.open()
 
     def run(self):
-        self.mq_consumer.open()
-        queue_name = f"test-{self.exchange}"
-        self.mq_consumer.bind(self.exchange, self.routing_key, queue_name)
-        self.mq_consumer.basic_consume(queue_name, self.callback_rabbit)
-        logger.warning(
-            f"binding from {self.exchange}, routing_key={self.routing_key}, queue={queue_name}")
-        self.mq_consumer.start_consuming()
+        try:
+            self.mq_consumer.open()
+            queue_name = f"test-{self.exchange}"
+            self.mq_consumer.bind(self.exchange, self.routing_key, queue_name)
+            self.mq_consumer.basic_consume(queue_name, self.callback_rabbit)
+            logger.warning(
+                f"binding from {self.exchange}, routing_key={self.routing_key}, queue={queue_name}")
+            self.mq_consumer.start_consuming()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.mq_consumer.close()
 
     @classmethod
     def callback_rabbit(cls, ch, method, properties, body):
