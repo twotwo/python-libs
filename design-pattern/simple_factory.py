@@ -1,7 +1,6 @@
 from abc import abstractmethod, ABC
 
 
-###################### [1] ######################
 class Pizza(ABC):
 
     @abstractmethod
