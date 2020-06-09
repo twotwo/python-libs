@@ -22,15 +22,19 @@ else:
     apple = web.DataReader("AAPL", "yahoo", start, end)
     # pandas.core.frame.DataFrame
     print(f"type(apple)={type(apple)}")
-    stocks = ['AAPL', 'MSFT']
-    for stock in stocks:
-        # save to excel
-        web.DataReader(stock, 'yahoo', start, end).to_excel(
-            f'./data/{stock}.xls')
-        print(f"saving {stock}.xls")
+
+stocks = ['AAPL', "GOOG", 'MSFT']
+for stock in stocks:
+    if os.path.exists(f'./data/{stock}.xls'):
+        print(f'./data/{stock}.xls exist')
+        continue
+    # save to excel
+    print(f"saving {stock}.xls ...")
+    web.DataReader(stock, 'yahoo', start, end).to_excel(
+        f'./data/{stock}.xls')
 
 # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_excel.html
-# index_col: int, default None. Column (0-indexed) to use as the row labels of the DataFrame.
+# index_col: int, default None. Column (0-indexed) to use as the row labels.
 apple = pd.read_excel("./data/AAPL.xls", index_col=0)
 ms = pd.read_excel("./data/MSFT.xls", index_col=0)
 
