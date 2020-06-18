@@ -16,6 +16,7 @@
 - [pandas-stocks.ipynb](./pandas-stocks.ipynb) parse data with matplotlib
   - use [python save-stock-info.py] to refresh stock data
 - [quandl-pilot.ipynb](./quandl-pilot.ipynb) another example for data show
+- [pandas-ist256.ipynb](./pandas-ist256.ipynb) another guide by michael fudge
 
 ## more reference
 
