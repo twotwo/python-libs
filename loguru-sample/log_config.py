@@ -18,13 +18,19 @@ logger.configure(
         dict(sink="log/{time:YYYY-MM-DD}.log",
              filter=lambda record: "default" in record["extra"],
              backtrace=False, enqueue=True, rotation="10 MB"),
-    ],
-    patch=lambda record: record["extra"]
+    ]
 )
 
 statis_logger = logger.bind(emitter=True)
 default_logger = logger.bind(default=True)
 
-default_logger.info('hello')
 
-statis_logger.info('statis log')
+def init_logger(name, level):
+    logger.add(sink=f"log/{name}-{level}.log",
+               level=level,
+               backtrace=False,
+               rotation="1 day",
+               retention="7 days",
+               enqueue=True,
+               )
+    return logger
