@@ -26,6 +26,8 @@ default_logger = logger.bind(default=True)
 
 
 def init_logger(name, level):
+    """Initialize logger in subprocess
+    """
     logger.add(sink=f"log/{name}-{level}.log",
                level=level,
                backtrace=False,
@@ -33,4 +35,28 @@ def init_logger(name, level):
                retention="7 days",
                enqueue=True,
                )
-    return logger
+
+
+loggers = {}
+
+
+def get_a_single_logger(name, level):
+    """Create a wrapper logger with extra info
+    利用 filter 机制让这个 logger 的消息只输出到当前 sink 上
+    """
+    logger_key = f"{name}-{level}"
+    if logger_key in loggers:
+        return loggers.get(logger_key)
+
+    logger.add(sink=f"log/{logger_key}.log",
+               level=level,
+               filter=lambda record: record["extra"].get("name") == name,
+               backtrace=False,
+               rotation="1 day",
+               retention="7 days",
+               enqueue=True,
+               )
+    # https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.bind
+    wrapper_log = logger.bind(name=name)
+    loggers[logger_key] = wrapper_log
+    return wrapper_log

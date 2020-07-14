@@ -1,6 +1,6 @@
 from loguru import logger
 import multiprocessing as mp
-from log_config import init_logger
+from log_config import init_logger, get_a_single_logger
 
 
 def test_basic_usage():
@@ -17,16 +17,21 @@ def test_basic_usage():
     logger.info("remove file handler")
 
 
-def test_rotation():
-    pass
+def test_one_sink_to_one_logger():
+    my_logger = get_a_single_logger("boss", "INFO")
+    logger.info("default handler")
+    my_logger.info("boss log")
 
 
 def create_process(name, level):
+    # add handler in process
     init_logger(name, level)
     logger.info(f"{name} starting, process={mp.current_process().pid}")
 
     logger.info(f"{name} finished.")
-    logger.remove()
+    # Wait for the end of enqueued messages
+    # and asynchronous tasks scheduled by handlers.
+    logger.complete()
 
 
 def test_per_process_per_log():
