@@ -1,6 +1,6 @@
 from loguru import logger
 import multiprocessing as mp
-from log_config import init_logger, get_a_single_logger
+from log_config import init_logger, get_a_single_logger, default_logger
 
 
 def test_basic_usage():
@@ -10,7 +10,7 @@ def test_basic_usage():
     add/remove handler
     """
     print()
-    logger.info("with default handler")
+    default_logger.info("with default handler")
     sink_id = logger.add("log/runtime.log", rotation="1 day")
     logger.info("add a file handler")
     logger.remove(sink_id)

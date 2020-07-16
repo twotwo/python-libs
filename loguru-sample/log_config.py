@@ -12,6 +12,8 @@ logger.configure(
     handlers=[
         dict(sink=sys.stderr, backtrace=False,
              filter=lambda record: "default" in record["extra"]),
+        dict(sink="log/default.log", backtrace=False,
+             filter=lambda record: "default" in record["extra"]),
         dict(sink=sys.stdout, backtrace=False,
              format="{message}", level="INFO",
              filter=lambda record: "emitter" in record["extra"]),
