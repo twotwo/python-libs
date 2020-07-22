@@ -352,7 +352,7 @@ ax.add_patch(circ)
 ax.add_patch(pgon)
 ```
 
-![图9-12 由三个块图形组成的图](http://upload-images.jianshu.io/upload_images/7178691-1f8a3d7a3a02d7d8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-12 由三个块图形组成的图](./img/09_12.png)
 
 
 如果查看许多常见图表对象的具体实现代码，你就会发现它们其实就是由块patch组装而成的。
@@ -382,7 +382,18 @@ plot_data = buffer.getvalue()
 
 表9-2列出了savefig的其它选项。
 
-![表9-2 Figure.savefig的选项](http://upload-images.jianshu.io/upload_images/7178691-4bee796bf7262423.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+[matplotlib.pyplot.savefig](https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html)
+
+表9-2 Figure.savefig的选项
+
+参数 | 说明
+---------|----------
+ fname | 文件路径字符串或 Python 文件对象。会根据文件扩展名推断文件类型
+ dpi | 图像分辨率(每英寸点数)，默认为 100
+ facecolor, edgecolor | 图像的背景色，默认为白色 'w'
+ format | 显式设置文件格式：png/pdf/svg/ps/eps
+ bbox_inches | 图表需要保持的部分。设置成 `tight` 将剪除图表周围空白的部分
 
 ### matplotlib配置
 
