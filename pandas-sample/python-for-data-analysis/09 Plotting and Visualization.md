@@ -434,14 +434,31 @@ In [60]: s = pd.Series(np.random.randn(10).cumsum(), index=np.arange(0, 100, 10)
 In [61]: s.plot()
 ```
 
-![图9-13 简单的Series图表示例](http://upload-images.jianshu.io/upload_images/7178691-f28e5ab2ac94c7a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-13 简单的Series图表示例](./img/09_13.png)
 
 该Series对象的索引会被传给matplotlib，并用以绘制X轴。可以通过use_index=False禁用该功能。X轴的刻度和界限可以通过xticks和xlim选项进行调节，Y轴就用yticks和ylim。plot参数的完整列表请参见表9-3。我只会讲解其中几个，剩下的就留给读者自己去研究了。
 
 
 ![](http://upload-images.jianshu.io/upload_images/7178691-6d9fbf863c09370a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-![表9-3 Series.plot方法的参数](http://upload-images.jianshu.io/upload_images/7178691-44e50562aeb5eb49.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+表9-3 Series.plot方法的参数
+
+参数 | 说明
+---------|----------
+ label | 图例的标签
+ ax | subplot 对象
+ style | matploblib 所需的风格字符串(如'ko--')
+ alpha | 图表的填充不透明度
+ kind | 可以是 line, bar, barh, kde
+ logy | 在 Y 轴上使用对数标尺
+ use_index | 将对象的索引用作刻度标签
+ rot | 旋转刻度标签
+ xticks | 用作 X 轴刻度的值
+ yticks | 用作 Y 轴刻度的值
+ xlim | X 轴的界限(例如 [0, 10])
+ ylim | Y 轴的界限
+ grid | 显示轴网格线(默认打开)
+
 
 pandas的大部分绘图方法都有一个可选的ax参数，它可以是一个matplotlib的subplot对象。这使你能够在网格布局中更为灵活地处理subplot的位置。
 
@@ -454,7 +471,7 @@ In [62]: df = pd.DataFrame(np.random.randn(10, 4).cumsum(0),
 In [63]: df.plot()
 ```
 
-![图9-14 简单的DataFrame绘图](http://upload-images.jianshu.io/upload_images/7178691-a1234d5e5ee41a40.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-14 简单的DataFrame绘图](./img/09_14.png)
 
 plot属性包含一批不同绘图类型的方法。例如，df.plot()等价于df.plot.line()。后面会学习这些方法。
 
@@ -463,6 +480,17 @@ plot属性包含一批不同绘图类型的方法。例如，df.plot()等价于d
 DataFrame还有一些用于对列进行灵活处理的选项，例如，是要将所有列都绘制到一个subplot中还是创建各自的subplot。详细信息请参见表9-4。
 
 ![表9-4 专用于DataFrame的plot参数](http://upload-images.jianshu.io/upload_images/7178691-96651ecaa90f1c68.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+
+参数 | 说明
+---------|----------
+ subplots | 将 DataFrame 列绘制到单独的 subplot 中
+ sharex | 如果 subplots=True，则共用同一个 X 轴，包括刻度和界限
+ sharey | 如果 subplots=True，则共用同一个 Y 轴
+ figsize | 表示图像大小的元组
+ title | 图像标题
+ legend | 添加一个 subplot 图例(默认为True)
+ sort_columns | 以字母表顺序绘制各列，默认使用当前列顺序
 
 >注意： 有关时间序列的绘图，请见第11章。
 
@@ -481,7 +509,7 @@ Out[66]: <matplotlib.axes._subplots.AxesSubplot at 0x7fb62493d470>
 In [67]: data.plot.barh(ax=axes[1], color='k', alpha=0.7)
 ```
 
-![图9-15 水平和垂直的柱状图](http://upload-images.jianshu.io/upload_images/7178691-cd54c7ccfa3f0687.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-15 水平和垂直的柱状图](./img/09_15.png)
 
 color='k'和alpha=0.7设定了图形的颜色为黑色，并使用部分的填充透明度。对于DataFrame，柱状图会将每一行的值分为一组，并排显示，如图9-16所示：
 
@@ -503,7 +531,7 @@ six    0.601648  0.478576  0.205690  0.560547
 In [71]: df.plot.bar()
 ```
 
-![图9-16 DataFrame的柱状图](http://upload-images.jianshu.io/upload_images/7178691-bfc141acb37d99b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-16 DataFrame的柱状图](./img/09_16.png)
 
 注意，DataFrame各列的名称"Genus"被用作了图例的标题。
 
@@ -513,7 +541,7 @@ In [71]: df.plot.bar()
 In [73]: df.plot.barh(stacked=True, alpha=0.5)
 ```
 
-![图9-17 DataFrame的堆积柱状图](http://upload-images.jianshu.io/upload_images/7178691-c19e4246eb897978.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-17 DataFrame的堆积柱状图](./img/09_17.png)
 
 >笔记：柱状图有一个非常不错的用法：利用value_counts图形化显示Series中各值的出现频率，比如s.value_counts().plot.bar()。
 
@@ -555,7 +583,7 @@ Thur  0.827586  0.068966  0.086207  0.017241
 In [81]: party_pcts.plot.bar()
 ```
 
-![图9-18 每天各种聚会规模的比例](http://upload-images.jianshu.io/upload_images/7178691-2918f67936823834.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-18 每天各种聚会规模的比例](./img/09_18.png)
 
 于是，通过该数据集就可以看出，聚会规模在周末会变大。
 
@@ -578,7 +606,7 @@ Out[85]:
 In [86]: sns.barplot(x='tip_pct', y='day', data=tips, orient='h')
 ```
 
-![图9-19 小费的每日比例，带有误差条](http://upload-images.jianshu.io/upload_images/7178691-c33e8b3add99904b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-19 小费的每日比例，带有误差条](./img/09_19.png)
 
 seaborn的绘制函数使用data参数，它可能是pandas的DataFrame。其它的参数是关于列的名字。因为一天的每个值有多次观察，柱状图的值是tip_pct的平均值。绘制在柱状图上的黑线代表95%置信区间（可以通过可选参数配置）。
 
@@ -588,7 +616,7 @@ seaborn.barplot有颜色选项，使我们能够通过一个额外的值设置�
 In [88]: sns.barplot(x='tip_pct', y='day', hue='time', data=tips, orient='h')
 ```
 
-![图9-20 根据天和时间的小费比例](http://upload-images.jianshu.io/upload_images/7178691-06abe2f070222115.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-20 根据天和时间的小费比例](./img/09_20.png)
 
 注意，seaborn已经自动修改了图形的美观度：默认调色板，图形背景和网格线的颜色。你可以用seaborn.set在不同的图形外观之间切换：
 
@@ -603,14 +631,14 @@ In [90]: sns.set(style="whitegrid")
 In [92]: tips['tip_pct'].plot.hist(bins=50)
 ```
 
-![图9-21 小费百分比的直方图](http://upload-images.jianshu.io/upload_images/7178691-255279376f7649a3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-21 小费百分比的直方图](./img/09_21.png)
 
 与此相关的一种图表类型是密度图，它是通过计算“可能会产生观测数据的连续概率分布的估计”而产生的。一般的过程是将该分布近似为一组核（即诸如正态分布之类的较为简单的分布）。因此，密度图也被称作KDE（Kernel Density Estimate，核密度估计）图。使用plot.kde和标准混合正态分布估计即可生成一张密度图（见图9-22）：
 ```python
 In [94]: tips['tip_pct'].plot.density()
 ```
 
-![图9-22  小费百分比的密度图](http://upload-images.jianshu.io/upload_images/7178691-ee929d033159516a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-22  小费百分比的密度图](./img/09_22.png)
 
 seaborn的distplot方法绘制直方图和密度图更加简单，还可以同时画出直方图和连续密度估计图。作为例子，考虑一个双峰分布，由两个不同的标准正态分布组成（见图9-23）：
 
@@ -624,7 +652,7 @@ In [98]: values = pd.Series(np.concatenate([comp1, comp2]))
 In [99]: sns.distplot(values, bins=100, color='k')
 ```
 
-![图9-23 标准混合密度估计的标准直方图](http://upload-images.jianshu.io/upload_images/7178691-975f04d750c4efe2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-23 标准混合密度估计的标准直方图](./img/09_23.png)
 
 ### 散布图或点图
 
@@ -656,7 +684,7 @@ Out[105]: <matplotlib.axes._subplots.AxesSubplot at 0x7fb613720be0>
 In [106]: plt.title('Changes in log %s versus log %s' % ('m1', 'unemp'))
 ```
 
-![图9-24 seaborn的回归/散布图](http://upload-images.jianshu.io/upload_images/7178691-2133d20739478a80.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-24 seaborn的回归/散布图](./img/09_24.png)
 
 在探索式数据分析工作中，同时观察一组变量的散布图是很有意义的，这也被称为散布图矩阵（scatter plot matrix）。纯手工创建这样的图表很费工夫，所以seaborn提供了一个便捷的pairplot函数，它支持在对角线上放置每个变量的直方图或密度估计（见图9-25）：
 
@@ -664,7 +692,7 @@ In [106]: plt.title('Changes in log %s versus log %s' % ('m1', 'unemp'))
 In [107]: sns.pairplot(trans_data, diag_kind='kde', plot_kws={'alpha': 0.2})
 ```
 
-![图9-25 statsmodels macro data的散布图矩阵](http://upload-images.jianshu.io/upload_images/7178691-20aa530a44e06f61.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-25 statsmodels macro data的散布图矩阵](./img/09_25.png)
 
 你可能注意到了plot_kws参数。它可以让我们传递配置选项到非对角线元素上的图形使用。对于更详细的配置选项，可以查阅seaborn.pairplot文档字符串。
 
@@ -676,7 +704,7 @@ In [107]: sns.pairplot(trans_data, diag_kind='kde', plot_kws={'alpha': 0.2})
    .....:                kind='bar', data=tips[tips.tip_pct < 1])
 ```
 
-![图9-26 按照天/时间/吸烟者的小费百分比](http://upload-images.jianshu.io/upload_images/7178691-737ba19a0cbdd46f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-26 按照天/时间/吸烟者的小费百分比](./img/09_26.png)
 
 除了在分面中用不同的颜色按时间分组，我们还可以通过给每个时间值添加一行来扩展分面网格：
 
@@ -686,7 +714,7 @@ In [109]: sns.factorplot(x='day', y='tip_pct', row='time',
    .....:                kind='bar', data=tips[tips.tip_pct < 1])
 ```
 
-![图9-27 按天的tip_pct，通过time/smoker分面](http://upload-images.jianshu.io/upload_images/7178691-4e52192441c609f7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-27 按天的tip_pct，通过time/smoker分面](./img/09_27.png)
 
 factorplot支持其它的绘图类型，你可能会用到。例如，盒图（它可以显示中位数，四分位数，和异常值）就是一个有用的可视化类型（见图9-28）：
 
@@ -695,7 +723,7 @@ In [110]: sns.factorplot(x='tip_pct', y='day', kind='box',
    .....:                data=tips[tips.tip_pct < 0.5])
 ```
 
-![图9-28 按天的tip_pct的盒图](http://upload-images.jianshu.io/upload_images/7178691-356fb27a7c658920.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![图9-28 按天的tip_pct的盒图](./img/09_28.png)
 
 使用更通用的seaborn.FacetGrid类，你可以创建自己的分面网格。请查阅seaborn的文档（https://seaborn.pydata.org/）。
 
