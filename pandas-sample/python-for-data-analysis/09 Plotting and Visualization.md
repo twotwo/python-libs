@@ -1,12 +1,14 @@
 
 # 第 9 章 绘图和可视化
-信息可视化（也叫绘图）是数据分析中最重要的工作之一。它可能是探索过程的一部分，例如，帮助我们找出异常值、必要的数据转换、得出有关模型的idea等。另外，做一个可交互的数据可视化也许是工作的最终目标。Python有许多库进行静态或动态的数据可视化，但我这里重要关注于matplotlib（http://matplotlib.org/）和基于它的库。
+
+信息可视化（也叫绘图）是数据分析中最重要的工作之一。它可能是探索过程的一部分，例如，帮助我们找出异常值、必要的数据转换、得出有关模型的idea等。另外，做一个可交互的数据可视化也许是工作的最终目标。Python有许多库进行静态或动态的数据可视化，但我这里重要关注于matplotlib（<http://matplotlib.org/>）和基于它的库。
 
 matplotlib是一个用于创建出版质量图表的桌面绘图包（主要是2D方面）。该项目是由John Hunter于2002年启动的，其目的是为Python构建一个MATLAB式的绘图接口。matplotlib和IPython社区进行合作，简化了从IPython shell（包括现在的Jupyter notebook）进行交互式绘图。matplotlib支持各种操作系统上许多不同的GUI后端，而且还能将图片导出为各种常见的矢量（vector）和光栅（raster）图：PDF、SVG、JPG、PNG、BMP、GIF等。除了几张，本书中的大部分图都是用它生成的。
 
-随着时间的发展，matplotlib衍生出了多个数据可视化的工具集，它们使用matplotlib作为底层。其中之一是seaborn（http://seaborn.pydata.org/），本章后面会学习它。
+随着时间的发展，matplotlib衍生出了多个数据可视化的工具集，它们使用matplotlib作为底层。其中之一是seaborn（<http://seaborn.pydata.org/>），本章后面会学习它。
 
 学习本章代码案例的最简单方法是在Jupyter notebook进行交互式绘图。在Jupyter notebook中执行下面的语句：
+
 ```python
 %matplotlib notebook
 ```
@@ -68,7 +70,7 @@ In [19]: ax3 = fig.add_subplot(2, 2, 3)
 
 这里，我们运行同一个小窗里的所有命令：
 
-```python 
+```python
 fig = plt.figure()
 ax1 = fig.add_subplot(2, 2, 1)
 ax2 = fig.add_subplot(2, 2, 2)
@@ -101,7 +103,7 @@ In [22]: ax2.scatter(np.arange(30), np.arange(30) + 3 * np.random.randn(30))
 In [24]: fig, axes = plt.subplots(2, 3)
 
 In [25]: axes
-Out[25]: 
+Out[25]:
 array([[<matplotlib.axes._subplots.AxesSubplot object at 0x7fb626374048>,
         <matplotlib.axes._subplots.AxesSubplot object at 0x7fb62625db00>,
         <matplotlib.axes._subplots.AxesSubplot object at 0x7fb6262f6c88>],
@@ -114,7 +116,6 @@ array([[<matplotlib.axes._subplots.AxesSubplot object at 0x7fb626374048>,
 这是非常实用的，因为可以轻松地对axes数组进行索引，就好像是一个二维数组一样，例如axes[0,1]。你还可以通过sharex和sharey指定subplot应该具有相同的X轴或Y轴。在比较相同范围的数据时，这也是非常实用的，否则，matplotlib会自动缩放各图表的界限。有关该方法的更多信息，请参见表9-1。
 
 表9-1 pyplot.subplots的选项
-
 
 参数 | 说明
 ---------|----------
@@ -354,7 +355,6 @@ ax.add_patch(pgon)
 
 ![图9-12 由三个块图形组成的图](./img/09_12.png)
 
-
 如果查看许多常见图表对象的具体实现代码，你就会发现它们其实就是由块patch组装而成的。
 
 ### 将图表保存到文件
@@ -381,7 +381,6 @@ plot_data = buffer.getvalue()
 ```
 
 表9-2列出了savefig的其它选项。
-
 
 [matplotlib.pyplot.savefig](https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html)
 
@@ -420,7 +419,7 @@ plt.rc('font', **font_options)
 
 matplotlib实际上是一种比较低级的工具。要绘制一张图表，你组装一些基本组件就行：数据展示（即图表类型：线型图、柱状图、盒形图、散布图、等值线图等）、图例、标题、刻度标签以及其他注解型信息。
 
-在pandas中，我们有多列数据，还有行和列标签。pandas自身就有内置的方法，用于简化从DataFrame和Series绘制图形。另一个库seaborn（https://seaborn.pydata.org/），由Michael Waskom创建的静态图形库。Seaborn简化了许多常见可视类型的创建。
+在pandas中，我们有多列数据，还有行和列标签。pandas自身就有内置的方法，用于简化从DataFrame和Series绘制图形。另一个库seaborn（<https://seaborn.pydata.org/），由Michael> Waskom创建的静态图形库。Seaborn简化了许多常见可视类型的创建。
 
 >提示：引入seaborn会修改matplotlib默认的颜色方案和绘图类型，以提高可读性和美观度。即使你不使用seaborn API，你可能也会引入seaborn，作为提高美观度和绘制常见matplotlib图形的简化方法。
 
@@ -437,7 +436,6 @@ In [61]: s.plot()
 ![图9-13 简单的Series图表示例](./img/09_13.png)
 
 该Series对象的索引会被传给matplotlib，并用以绘制X轴。可以通过use_index=False禁用该功能。X轴的刻度和界限可以通过xticks和xlim选项进行调节，Y轴就用yticks和ylim。plot参数的完整列表请参见表9-3。我只会讲解其中几个，剩下的就留给读者自己去研究了。
-
 
 ![](http://upload-images.jianshu.io/upload_images/7178691-6d9fbf863c09370a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
@@ -459,10 +457,10 @@ In [61]: s.plot()
  ylim | Y 轴的界限
  grid | 显示轴网格线(默认打开)
 
-
 pandas的大部分绘图方法都有一个可选的ax参数，它可以是一个matplotlib的subplot对象。这使你能够在网格布局中更为灵活地处理subplot的位置。
 
 DataFrame的plot方法会在一个subplot中为各列绘制一条线，并自动创建图例（如图9-14所示）：
+
 ```python
 In [62]: df = pd.DataFrame(np.random.randn(10, 4).cumsum(0),
    ....:                   columns=['A', 'B', 'C', 'D'],
@@ -480,7 +478,6 @@ plot属性包含一批不同绘图类型的方法。例如，df.plot()等价于d
 DataFrame还有一些用于对列进行灵活处理的选项，例如，是要将所有列都绘制到一个subplot中还是创建各自的subplot。详细信息请参见表9-4。
 
 ![表9-4 专用于DataFrame的plot参数](http://upload-images.jianshu.io/upload_images/7178691-96651ecaa90f1c68.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-
 
 参数 | 说明
 ---------|----------
@@ -519,7 +516,7 @@ In [69]: df = pd.DataFrame(np.random.rand(6, 4),
    ....:                   columns=pd.Index(['A', 'B', 'C', 'D'], name='Genus'))
 
 In [70]: df
-Out[70]: 
+Out[70]:
 Genus         A         B         C         D
 one    0.370670  0.602792  0.229159  0.486744
 two    0.420082  0.571653  0.049024  0.880592
@@ -553,9 +550,9 @@ In [75]: tips = pd.read_csv('examples/tips.csv')
 In [76]: party_counts = pd.crosstab(tips['day'], tips['size'])
 
 In [77]: party_counts
-Out[77]: 
+Out[77]:
 size  1   2   3   4  5  6
-day                      
+day
 Fri   1  16   1   1  0  0
 Sat   2  53  18  13  1  0
 Sun   0  39  15  18  3  1
@@ -572,9 +569,9 @@ In [78]: party_counts = party_counts.loc[:, 2:5]
 In [79]: party_pcts = party_counts.div(party_counts.sum(1), axis=0)
 
 In [80]: party_pcts
-Out[80]: 
+Out[80]:
 size         2         3         4         5
-day                                         
+day
 Fri   0.888889  0.055556  0.055556  0.000000
 Sat   0.623529  0.211765  0.152941  0.011765
 Sun   0.520000  0.200000  0.240000  0.040000
@@ -595,7 +592,7 @@ In [83]: import seaborn as sns
 In [84]: tips['tip_pct'] = tips['tip'] / (tips['total_bill'] - tips['tip'])
 
 In [85]: tips.head()
-Out[85]: 
+Out[85]:
    total_bill   tip smoker  day    time  size   tip_pct
 0       16.99  1.01     No  Sun  Dinner     2  0.063204
 1       10.34  1.66     No  Sun  Dinner     3  0.191244
@@ -627,6 +624,7 @@ In [90]: sns.set(style="whitegrid")
 ### 直方图和密度图
 
 直方图（histogram）是一种可以对值频率进行离散化显示的柱状图。数据点被拆分到离散的、间隔均匀的面元中，绘制的是各面元中数据点的数量。再以前面那个小费数据为例，通过在Series使用plot.hist方法，我们可以生成一张“小费占消费总额百分比”的直方图（如图9-21所示）：
+
 ```python
 In [92]: tips['tip_pct'].plot.hist(bins=50)
 ```
@@ -634,6 +632,7 @@ In [92]: tips['tip_pct'].plot.hist(bins=50)
 ![图9-21 小费百分比的直方图](./img/09_21.png)
 
 与此相关的一种图表类型是密度图，它是通过计算“可能会产生观测数据的连续概率分布的估计”而产生的。一般的过程是将该分布近似为一组核（即诸如正态分布之类的较为简单的分布）。因此，密度图也被称作KDE（Kernel Density Estimate，核密度估计）图。使用plot.kde和标准混合正态分布估计即可生成一张密度图（见图9-22）：
+
 ```python
 In [94]: tips['tip_pct'].plot.density()
 ```
@@ -666,7 +665,7 @@ In [101]: data = macro[['cpi', 'm1', 'tbilrate', 'unemp']]
 In [102]: trans_data = np.log(data).diff().dropna()
 
 In [103]: trans_data[-5:]
-Out[103]: 
+Out[103]:
           cpi        m1  tbilrate     unemp
 198 -0.007904  0.045361 -0.396881  0.105361
 199 -0.021979  0.066753 -2.277267  0.139762
@@ -696,9 +695,9 @@ In [107]: sns.pairplot(trans_data, diag_kind='kde', plot_kws={'alpha': 0.2})
 
 你可能注意到了plot_kws参数。它可以让我们传递配置选项到非对角线元素上的图形使用。对于更详细的配置选项，可以查阅seaborn.pairplot文档字符串。
 
-
-##分面网格（facet grid）和类型数据
+## 分面网格（facet grid）和类型数据
 要是数据集有额外的分组维度呢？有多个分类变量的数据可视化的一种方法是使用小面网格。seaborn有一个有用的内置函数factorplot，可以简化制作多种分面图（见图9-26）：
+
 ```python
  In [108]: sns.factorplot(x='day', y='tip_pct', hue='time', col='smoker',
    .....:                kind='bar', data=tips[tips.tip_pct < 1])
@@ -725,10 +724,11 @@ In [110]: sns.factorplot(x='tip_pct', y='day', kind='box',
 
 ![图9-28 按天的tip_pct的盒图](./img/09_28.png)
 
-使用更通用的seaborn.FacetGrid类，你可以创建自己的分面网格。请查阅seaborn的文档（https://seaborn.pydata.org/）。
+使用更通用的seaborn.FacetGrid类，你可以创建自己的分面网格。请查阅seaborn的文档（<https://seaborn.pydata.org/>）。
 
 ## 9.3 其它的Python可视化工具
-与其它开源库类似，Python创建图形的方式非常多（根本罗列不完）。自从2010年，许多开发工作都集中在创建交互式图形以便在Web上发布。利用工具如Boken（https://bokeh.pydata.org/en/latest/）和Plotly（https://github.com/plotly/plotly.py），现在可以创建动态交互图形，用于网页浏览器。
+
+与其它开源库类似，Python创建图形的方式非常多（根本罗列不完）。自从2010年，许多开发工作都集中在创建交互式图形以便在Web上发布。利用工具如Boken（<https://bokeh.pydata.org/en/latest/）和Plotly（https://github.com/plotly/plotly.py>），现在可以创建动态交互图形，用于网页浏览器。
 
 对于创建用于打印或网页的静态图形，我建议默认使用matplotlib和附加的库，比如pandas和seaborn。对于其它数据可视化要求，学习其它的可用工具可能是有用的。我鼓励你探索绘图的生态系统，因为它将持续发展。
 
