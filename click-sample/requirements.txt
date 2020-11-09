@@ -1,0 +1,4 @@
+--index https://mirrors.aliyun.com/pypi/simple
+click>=7.1.0
+python-dotenv>=0.15.0
+pytest>=6.1.0
