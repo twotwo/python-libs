@@ -16,5 +16,6 @@ $ pip install --upgrade pip && pip install -r requirements.txt
 
 ```bash
 # running command
-./main.py moin-pull
+./moin.py --proxy pull
+./moin.py --proxy push
 ```
