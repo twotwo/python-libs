@@ -1,0 +1,6 @@
+default:
+  LOG_LEVEL: INFO
+  SERVER_IP: 127.0.0.1
+
+dev-81:
+  SERVER_IP: 192.168.111.81

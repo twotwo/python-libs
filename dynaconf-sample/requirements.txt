@@ -1,0 +1,2 @@
+--index https://mirrors.aliyun.com/pypi/simple
+dynaconf==3.1.2
