@@ -1,0 +1,9 @@
+# https://docs.fabfile.org/en/2.5/concepts/configuration.html#ssh-config
+Host *
+     ConnectTimeout 10
+     ForwardAgent no
+     ForwardX11 no
+     ForwardX11Trusted yes
+     User god
+     Port 22
+     Protocol 2
