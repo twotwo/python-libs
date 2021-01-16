@@ -1,0 +1,10 @@
+python-dotenv==0.15.0  # auto load .env
+pytest>=6.1.0        # unit test framework
+faker==5.6.0         # generates fake data
+factory_boy==3.2.0   # test fixtures
+mypy==0.790          # static type checker
+black==20.8b1        # code formatter, less is more
+# yapf==0.30.0       # code formatter, need more config
+isort==5.6.4         # sort your imports alphabetically
+flake8==3.8.4        # linter tool
+pre-commit==2.9.3    # pre-commit hooks

@@ -1,0 +1,3 @@
+alembic==1.4.3       # Migration tool for SQLAlchemy
+SQLAlchemy==1.3.22   # ORM Framework
+treelib              # display as tree structure, use in app
