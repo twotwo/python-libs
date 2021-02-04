@@ -1,4 +1,4 @@
-from sample.repo.book import get_books_by_publishers, add_new_book
+from sample.repo.book import add_new_book, get_books_by_publishers
 from tests.fb import BookFactory
 
 

@@ -4,6 +4,7 @@ Defining factories with Factory Boy
 https://factoryboy.readthedocs.io/en/stable/
 """
 import factory
+
 from sample.domain.book import Book
 
 

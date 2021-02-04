@@ -3,15 +3,16 @@ from __future__ import print_function
 
 import itertools
 
-# from datetime import datetime, timedelta
-
-from faker import Faker
 import pytest
+from faker import Faker
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from sample.domain import Base
 from sample.repo.book import add_new_book
+
+# from datetime import datetime, timedelta
+
 
 # from sample.models import author_publisher, book_publisher
 # from sample.models.auther import Author

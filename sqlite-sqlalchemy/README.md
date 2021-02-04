@@ -60,3 +60,15 @@ From the main folder take the following steps (on a Mac):
 * Test DB in File Mode
   * `pytest -s --dburl=/tmp/s.db`
   * `sqlite3 /tmp/s.db`
+
+
+## Getting Started
+
+1. Engine, Connection, Transactions
+  `pytest tests/test_engine.py`
+2. Table Metadata, Reﬂection, DDL
+  `pytest tests/test_metadata.py`
+3. SQL Expressions
+  `pytest tests/test_sql_exp.py`
+4. Object Relational Mapping
+  `pytest tests/test_orm.py`
