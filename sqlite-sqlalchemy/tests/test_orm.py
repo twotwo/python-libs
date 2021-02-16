@@ -8,13 +8,23 @@ Base = declarative_base()
 
 class User(Base):
     __tablename__ = "user"
-
+    # a table should has a primary key
     id = Column(Integer, primary_key=True)
     name = Column(String)
     fullname = Column(String)
 
     def __repr__(self):
         return "<User(%r, %r)>" % (self.name, self.fullname)
+
+
+def test_inspect():
+    from sqlalchemy import inspect
+
+    mapper = inspect(User)
+    # https://docs.sqlalchemy.org/en/13/orm/mapping_api.html#sqlalchemy.orm.Mapper.persist_selectable
+    assert "user" == mapper.persist_selectable.name
+    for column in mapper.columns:
+        print(column)
 
 
 def test_orm():

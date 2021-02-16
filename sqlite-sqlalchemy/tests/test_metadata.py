@@ -1,4 +1,5 @@
 # 通过 Metadata 操作数据库
+# https://docs.sqlalchemy.org/en/13/core/metadata.html
 
 from sqlalchemy import Column, Integer, MetaData, String, Table
 

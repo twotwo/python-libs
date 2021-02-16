@@ -1,0 +1,11 @@
+{
+    "python.pythonPath": "venv/bin/python",
+    "python.formatting.provider": "black",
+    // https://code.visualstudio.com/docs/python/linting
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--ignore=E24,E501,W504",
+        "--verbose"
+    ],
+    "restructuredtext.confPath": ""
+}

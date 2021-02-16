@@ -22,7 +22,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--dburl",
         action="store",
-        default="sqlite:///",
+        default="sqlite://",
         help="url of the database to use for tests",
     )
 
@@ -43,11 +43,14 @@ def populate(session):
 
 @pytest.fixture(scope="session")
 def engine(request):
-    print()
+    """
+    https://docs.sqlalchemy.org/en/13/core/engines.html#sqlite
+
+    dialect+driver://username:password@host:port/database
+    """
+    # SQLite :memory: database or file-based db
     db_url = request.config.getoption("--dburl")
-    print("=" * 100)
-    print(f"db_url={db_url}")
-    if str(db_url).find("sqlite:///") != 0:
+    if str(db_url).find("sqlite://") != 0:
         db_url = f"sqlite:///{db_url}"
     print(f"db_url={db_url}")
     return create_engine(db_url, echo=False)

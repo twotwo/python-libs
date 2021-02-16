@@ -1,4 +1,5 @@
 # 通过 SQL Expression 操作数据库
+# https://docs.sqlalchemy.org/en/13/faq/sqlexpressions.html
 
 from sqlalchemy import Column, Integer, MetaData, String, Table
 
@@ -29,7 +30,7 @@ def test_sql_expression():
 def test_comparison_operators():
     assert '"user".id > :id_1' == str(user_table.c.id > 5)
 
-    assert '"user".name IS NULL' == str(user_table.c.name == None)
+    assert '"user".name IS NULL' == str(user_table.c.name is None)
 
     assert '"user".id + :id_1' == str(user_table.c.id + 5)
 
@@ -55,6 +56,19 @@ def test_dialect():
 
     compiled = expression.compile()
     assert "{'name_1': 'ed'}" == str(compiled.params)
+
+
+def test_print_params():
+    """
+    Rendering Bound Parameters Inline
+    """
+    from sqlalchemy.sql import table, column, select
+
+    t = table("t", column("x"))
+    stmt = select([t]).where(t.c.x == 5)
+    expect = "SELECT t.x \nFROM t \nWHERE t.x = "
+    assert expect + ":x_1" == str(stmt.compile())
+    assert expect + "5" == str(stmt.compile(compile_kwargs={"literal_binds": True}))
 
 
 def test_execute(engine):
