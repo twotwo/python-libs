@@ -30,7 +30,7 @@ def test_sql_expression():
 def test_comparison_operators():
     assert '"user".id > :id_1' == str(user_table.c.id > 5)
 
-    assert '"user".name IS NULL' == str(user_table.c.name is None)
+    assert '"user".name IS NULL' == str(user_table.c.name == None)
 
     assert '"user".id + :id_1' == str(user_table.c.id + 5)
 

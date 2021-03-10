@@ -1,4 +1,10 @@
 # 通过 ORM 操作数据库
+# https://docs.sqlalchemy.org/en/13/orm/tutorial.html
+#
+# https://docs.sqlalchemy.org/en/13/orm/session.html
+# The mapper() function and declarative extensions are the primary configurational interface for the ORM.
+# Once mappings are configured, the primary usage interface for persistence operations is the Session.
+
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
@@ -45,3 +51,23 @@ def test_session(engine, session):
     # our_user = session.query(User).filter_by(name="ed").first()
     our_user = session.query(User).filter(User.name == "ed").first()
     assert our_user.id == 1
+
+
+def test_query(session):
+    from sqlalchemy import asc
+    result = session.query(User.name, User.fullname).order_by(asc("fullname"))
+    # https://docs.sqlalchemy.org/en/13/faq/sessions.html#query-has-no-len-why-not
+    assert len(list(result)) == 1
+    assert list(result)[0].name == "ed"
+    assert list(result)[0].fullname == "Edward Jones"
+
+
+# def test_get_books_by_publishers(session):
+#     from sample.repo.book import get_books_by_publishers
+#     books_by_publisher = get_books_by_publishers(session, ascending=False)
+#     # https://docs.sqlalchemy.org/en/13/faq/sessions.html#query-has-no-len-why-not
+#     assert len(list(books_by_publisher)) == 3
+
+#     # for row in books_by_publisher:
+#     #     print(f"Publisher: {row.name}, total books: {row.total_books}")
+#     assert list(books_by_publisher)[0].total_books == 17
