@@ -26,6 +26,10 @@ def pytest_addoption(parser):
         help="url of the database to use for tests",
     )
 
+    parser.addoption(
+        "--echo", action="store", default=False, help="engine echo param: True or False"
+    )
+
 
 def populate(session):
     """Create 3 publishers and 50 books."""
@@ -52,8 +56,9 @@ def engine(request):
     db_url = request.config.getoption("--dburl")
     if str(db_url).find("sqlite://") != 0:
         db_url = f"sqlite:///{db_url}"
-    print(f"db_url={db_url}")
-    return create_engine(db_url, echo=False)
+    echo = bool(request.config.getoption("--echo"))
+    print(f"db_url={db_url}, echo={echo}")
+    return create_engine(db_url, echo=echo)
 
 
 @pytest.fixture(scope="session")

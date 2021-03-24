@@ -1,4 +1,4 @@
-# 通过 ORM 操作数据库
+# 通过 ORM 操作数据库：pytest --echo=true tests/test_orm.py -s
 # https://docs.sqlalchemy.org/en/13/orm/tutorial.html
 #
 # https://docs.sqlalchemy.org/en/13/orm/session.html

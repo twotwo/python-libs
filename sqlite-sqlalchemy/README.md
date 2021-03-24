@@ -60,7 +60,8 @@ From the main folder take the following steps (on a Mac):
 * Test DB in File Mode
   * `pytest -s --dburl=/tmp/s.db`
   * `sqlite3 /tmp/s.db`
-
+* Echo sql
+  * `pytest --echo=true -s`
 
 ## Getting Started
 
@@ -71,4 +72,4 @@ From the main folder take the following steps (on a Mac):
 3. SQL Expressions
   `pytest tests/test_sql_exp.py`
 4. Object Relational Mapping
-  `pytest tests/test_orm.py`
+  `pytest --echo=true tests/test_orm.py -s`

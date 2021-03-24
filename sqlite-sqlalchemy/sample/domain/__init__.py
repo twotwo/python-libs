@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
-from sqlalchemy import Column, Integer, ForeignKey, Table
+
+from sqlalchemy import Column, ForeignKey, Integer, Table
 from sqlalchemy.ext.declarative import declarative_base
 
 ATTR_NAMES_FOR_JSON_FORMAT_CONVERSION = ["raw_meta", "tags"]

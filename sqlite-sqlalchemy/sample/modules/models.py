@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Column, ForeignKey, Integer, String, Table
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import backref, relationship
 
 Base = declarative_base()
 
@@ -49,6 +49,4 @@ class Publisher(Base):
     authors = relationship(
         "Author", secondary=author_publisher, back_populates="publishers"
     )
-    books = relationship(
-        "Book", secondary=book_publisher, back_populates="publishers"
-    )
+    books = relationship("Book", secondary=book_publisher, back_populates="publishers")

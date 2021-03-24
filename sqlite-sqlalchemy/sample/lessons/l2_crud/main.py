@@ -8,9 +8,9 @@ from importlib import resources
 from sqlalchemy import and_, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import asc, desc, func
+from treelib import Tree
 
 from sample.modules.models import Author, Book, Publisher
-from treelib import Tree
 
 
 def get_books_by_publishers(session, ascending=True):
@@ -29,9 +29,7 @@ def get_books_by_publishers(session, ascending=True):
     direction = asc if ascending else desc
 
     return (
-        session.query(
-            Publisher.name, func.count(Book.title).label("total_books")
-        )
+        session.query(Publisher.name, func.count(Book.title).label("total_books"))
         .join(Publisher.books)
         .group_by(Publisher.name)
         .order_by(direction("total_books"))
@@ -80,11 +78,7 @@ def add_new_book(session, author_name, book_title, publisher_name):
         session.query(Book)
         .join(Author)
         .filter(Book.title == book_title)
-        .filter(
-            and_(
-                Author.first_name == first_name, Author.last_name == last_name
-            )
-        )
+        .filter(and_(Author.first_name == first_name, Author.last_name == last_name))
         .filter(Book.publishers.any(Publisher.name == publisher_name))
         .one_or_none()
     )
@@ -97,11 +91,7 @@ def add_new_book(session, author_name, book_title, publisher_name):
         session.query(Book)
         .join(Author)
         .filter(Book.title == book_title)
-        .filter(
-            and_(
-                Author.first_name == first_name, Author.last_name == last_name
-            )
-        )
+        .filter(and_(Author.first_name == first_name, Author.last_name == last_name))
         .one_or_none()
     )
     # Create the new book if needed
@@ -111,11 +101,7 @@ def add_new_book(session, author_name, book_title, publisher_name):
     # Get the author
     author = (
         session.query(Author)
-        .filter(
-            and_(
-                Author.first_name == first_name, Author.last_name == last_name
-            )
-        )
+        .filter(and_(Author.first_name == first_name, Author.last_name == last_name))
         .one_or_none()
     )
     # Do we need to create the author?
@@ -125,9 +111,7 @@ def add_new_book(session, author_name, book_title, publisher_name):
 
     # Get the publisher
     publisher = (
-        session.query(Publisher)
-        .filter(Publisher.name == publisher_name)
-        .one_or_none()
+        session.query(Publisher).filter(Publisher.name == publisher_name).one_or_none()
     )
     # Do we need to create the publisher?
     if publisher is None:
