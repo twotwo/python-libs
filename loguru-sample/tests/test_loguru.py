@@ -1,6 +1,8 @@
-from loguru import logger
 import multiprocessing as mp
-from log_config import init_logger, get_a_single_logger, default_logger
+
+from loguru import logger
+
+from log_config import default_logger, get_a_single_logger, init_logger
 
 
 def test_basic_usage():
@@ -53,4 +55,5 @@ def test_per_process_per_log():
 
 def test_config():
     from log_config import default_logger
+
     default_logger.info("hello")
