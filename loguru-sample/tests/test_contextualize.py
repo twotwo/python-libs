@@ -25,6 +25,19 @@ def test_contextualize_in_error(writer):
     )
 
 
+def test_contextualize_in_exception(writer):
+    logger.add(writer, format="{extra} {message}")
+
+    with logger.contextualize(foo="bar", baz=123):
+        try:
+            4 / 0
+        except ZeroDivisionError:
+            logger.exception("")
+        print(writer.read())
+        assert writer.read().startswith("{'foo': 'bar', 'baz': 123}")
+        assert writer.read().endswith("ZeroDivisionError: division by zero\n")
+
+
 def test_contextualize_as_decorator(writer):
     logger.add(writer, format="{message} {extra[foo]} {extra[baz]}")
 
