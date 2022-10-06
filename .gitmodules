@@ -1,0 +1,3 @@
+[submodule "pandas-sample"]
+	path = pandas-sample
+	url = https://github.com/twotwo/python-pandas-sample.git
