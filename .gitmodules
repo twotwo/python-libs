@@ -1,3 +1,6 @@
 [submodule "pandas-sample"]
 	path = pandas-sample
 	url = https://github.com/twotwo/python-pandas-sample.git
+[submodule "grpc-sample"]
+	path = grpc-sample
+	url = https://github.com/twotwo/python-grpc-sample
