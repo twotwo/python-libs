@@ -4,3 +4,6 @@
 [submodule "grpc-sample"]
 	path = grpc-sample
 	url = https://github.com/twotwo/python-grpc-sample
+[submodule "loguru-sample"]
+	path = loguru-sample
+	url = https://github.com/twotwo/python-loguru-sample
