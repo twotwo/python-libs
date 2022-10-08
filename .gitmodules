@@ -7,3 +7,6 @@
 [submodule "loguru-sample"]
 	path = loguru-sample
 	url = https://github.com/twotwo/python-loguru-sample
+[submodule "design-pattern"]
+	path = design-pattern
+	url = https://github.com/twotwo/python-design-pattern
