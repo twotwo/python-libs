@@ -10,3 +10,7 @@
 [submodule "design-pattern"]
 	path = design-pattern
 	url = https://github.com/twotwo/python-design-pattern
+[submodule "numpy-sample"]
+	path = numpy-sample
+	url = https://github.com/twotwo/python-numpy-sample
+	branch = 0.1.0
