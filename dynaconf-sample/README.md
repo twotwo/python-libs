@@ -33,5 +33,5 @@ $ pip install --upgrade pip && \
 ```bash
 # unit test
 $ export PYTHONPATH=.
-$ pytest tests/test_config.py -s
+$ pytest
 ```
