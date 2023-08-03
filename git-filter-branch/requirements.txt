@@ -1,4 +1,4 @@
 --index https://pypi.tuna.tsinghua.edu.cn/simple
-loguru==0.3.2
+loguru==0.5.3
 gitpython==2.1.13
 tzlocal==2.0.0
